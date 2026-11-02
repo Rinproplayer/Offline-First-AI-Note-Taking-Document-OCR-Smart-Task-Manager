@@ -49,7 +49,7 @@ export const TaskTrackerScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      <StatusBar barStyle="light-content" />
       <MaterialHeader title="MindVault" subtitle="NHIỆM VỤ" />
 
       <ScrollView
@@ -190,7 +190,6 @@ export const TaskTrackerScreen: React.FC = () => {
         <View style={styles.flashListContainer}>
           <FlashList
             data={tasks}
-            estimatedItemSize={70}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <TaskItem

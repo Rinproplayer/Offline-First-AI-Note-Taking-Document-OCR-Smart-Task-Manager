@@ -70,7 +70,7 @@ export const OCRScannerScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      <StatusBar barStyle="light-content" />
 
       {/* Top Header */}
       <View style={styles.header}>

@@ -131,7 +131,8 @@ export async function synchronizeWithSupabase(): Promise<SyncResult> {
        * lên Supabase PostgreSQL theo lô (Batch).
        */
       pushChanges: async ({ changes }) => {
-        const { notes: notesChanges, tasks: tasksChanges } = changes;
+        const notesChanges = (changes as any).notes;
+        const tasksChanges = (changes as any).tasks;
 
         // 1. Đẩy thay đổi cho bảng `notes`
         if (notesChanges) {

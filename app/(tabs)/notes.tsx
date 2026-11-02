@@ -19,7 +19,6 @@ export default function NotesTab() {
       <View style={styles.listWrapper}>
         <FlashList
           data={notes}
-          estimatedItemSize={120}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <NoteCard

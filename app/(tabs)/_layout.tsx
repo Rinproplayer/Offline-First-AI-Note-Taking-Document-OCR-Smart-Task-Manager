@@ -30,7 +30,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Trang chủ',
-          tabBarIcon: ({ color, focused }) => (
+          tabBarIcon: ({ color, focused }: any) => (
             <Ionicons
               name={focused ? 'home' : 'home-outline'}
               size={22}
@@ -43,7 +43,7 @@ export default function TabLayout() {
         name="notes"
         options={{
           title: 'Ghi chú',
-          tabBarIcon: ({ color, focused }) => (
+          tabBarIcon: ({ color, focused }: any) => (
             <Ionicons
               name={focused ? 'document-text' : 'document-text-outline'}
               size={22}
@@ -56,7 +56,7 @@ export default function TabLayout() {
         name="ocr"
         options={{
           title: 'Quét OCR',
-          tabBarIcon: ({ color, focused }) => (
+          tabBarIcon: ({ color, focused }: any) => (
             <View style={focused ? styles.activeOcrIcon : undefined}>
               <Ionicons
                 name={focused ? 'scan' : 'scan-outline'}
@@ -71,7 +71,7 @@ export default function TabLayout() {
         name="tasks"
         options={{
           title: 'Nhiệm vụ',
-          tabBarIcon: ({ color, focused }) => (
+          tabBarIcon: ({ color, focused }: any) => (
             <Ionicons
               name={focused ? 'checkbox' : 'checkbox-outline'}
               size={22}

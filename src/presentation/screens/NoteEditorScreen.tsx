@@ -139,7 +139,7 @@ export const NoteEditorScreen: React.FC = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={styles.container}
     >
-      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      <StatusBar barStyle="light-content" />
 
       {/* Editor Top Navigation Bar (Material 3 Touch Targets >= 48dp) */}
       <View style={styles.topBar}>

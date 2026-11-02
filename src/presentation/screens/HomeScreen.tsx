@@ -206,14 +206,13 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      <StatusBar barStyle="light-content" />
       <MaterialHeader title="MindVault" subtitle="TRANG CHỦ" />
 
       {/* FlashList 60fps Scrolling Container */}
       <FlashList
         data={notes}
         keyExtractor={(item: Note) => item.id}
-        estimatedItemSize={125}
         ListHeaderComponent={renderListHeader}
         ListEmptyComponent={renderEmptyList}
         renderItem={({ item }: { item: Note }) => (
@@ -226,7 +225,9 @@ export const HomeScreen: React.FC = () => {
         refreshControl={
           <RefreshControl
             refreshing={isLoading}
-            onRefresh={refetch}
+            onRefresh={() => {
+              refetch();
+            }}
             tintColor={colors.primary}
             colors={[colors.primary, colors.secondary]}
           />
