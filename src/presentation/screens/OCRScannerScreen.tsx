@@ -28,9 +28,7 @@ export const OCRScannerScreen: React.FC = () => {
     try {
       const response = await ocrMutation.mutateAsync({
         imageUri: 'file:///simulated/camera/scan_document.jpg',
-        mode,
-        autoCreateNote: false,
-        autoExtractTasks: false
+        mode
       });
       setOcrResult(response.ocrResult);
     } catch (e: any) {
@@ -39,27 +37,27 @@ export const OCRScannerScreen: React.FC = () => {
   };
 
   const handleSaveToNote = async () => {
-    if (!ocrResult) return;
+    if (!ocrResult) {
+      await handleScan();
+    }
     try {
       const response = await ocrMutation.mutateAsync({
         imageUri: 'file:///simulated/camera/scan_document.jpg',
         mode,
-        autoCreateNote: true,
-        autoExtractTasks: true,
         noteTitle: `OCR ${mode.toUpperCase()} - ${new Date().toLocaleTimeString('vi-VN', {
           hour: '2-digit',
           minute: '2-digit'
         })}`
       });
 
-      if (response.createdNote) {
+      if (response.note) {
         Alert.alert(
           'Thành công',
-          `Đã tạo ghi chú và tự động trích xuất ${response.extractedTaskCount} việc cần làm!`,
+          `Đã tạo ghi chú "${response.note.title}" từ tài liệu OCR!`,
           [
             {
               text: 'Mở ghi chú',
-              onPress: () => router.push(`/note-editor/${response.createdNote!.id}`)
+              onPress: () => router.push(`/note-editor/${response.note.id}`)
             },
             { text: 'Đóng' }
           ]
