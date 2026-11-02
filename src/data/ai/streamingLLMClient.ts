@@ -58,35 +58,44 @@ export class StreamingLLMClient {
     signal?: AbortSignal
   ): Promise<string> {
     const systemPrompt = this.buildSystemPrompt(promptType);
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`;
+    const candidateModels = [
+      'gemini-flash-lite-latest',
+      'gemini-flash-latest',
+      'gemini-3.1-flash-lite-preview'
+    ];
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          { role: 'user', parts: [{ text: `${systemPrompt}\n\nNỘI DUNG GHI CHÚ:\n${content}` }] }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1024
+    for (const model of candidateModels) {
+      if (signal?.aborted) break;
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.geminiApiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              { role: 'user', parts: [{ text: `${systemPrompt}\n\nNỘI DUNG GHI CHÚ:\n${content}` }] }
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 1024
+            }
+          }),
+          signal
+        });
+
+        if (response.ok) {
+          const json = await response.json();
+          const fullText: string = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (fullText) {
+            return await this.streamTextTokens(fullText, onToken, signal);
+          }
         }
-      }),
-      signal
-    });
-
-    if (!response.ok) {
-      throw new Error(`Gemini API HTTP Error: ${response.status}`);
+      } catch (err: any) {
+        console.warn(`[StreamingLLM] Model ${model} thử nghiệm thất bại:`, err.message);
+      }
     }
 
-    const json = await response.json();
-    const fullText: string = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    if (!fullText) {
-      throw new Error('Gemini API trả về nội dung rỗng');
-    }
-
-    return this.streamTextTokens(fullText, onToken, signal);
+    throw new Error('Tất cả các mô hình Gemini đang bận hoặc không phản hồi');
   }
 
   /**

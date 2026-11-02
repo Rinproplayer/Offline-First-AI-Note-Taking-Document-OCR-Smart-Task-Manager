@@ -82,7 +82,7 @@ export class MLKitOCRService {
     base64Data: string,
     mode: 'text' | 'receipt' | 'latex' | 'table'
   ): Promise<OCRResult> {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${this.geminiApiKey}`;
 
     let instruction = 'Hãy đọc và trích xuất toàn bộ văn bản trong bức ảnh này một cách chính xác 100% (đặc biệt là tiếng Việt có dấu, chữ viết tay hoặc in ấn). Chỉ trả về nội dung trích xuất được, không kèm lời chào.';
     if (mode === 'receipt') {
