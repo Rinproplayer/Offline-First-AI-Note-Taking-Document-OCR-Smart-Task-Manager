@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, typography, radius } from '../theme/colors';
 import { ViewfinderOverlay, OCRScanMode } from '../components/ViewfinderOverlay';
@@ -27,6 +28,7 @@ import { OCRResult } from '../../domain/repositories/IAIService';
  */
 export const OCRScannerScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<OCRScanMode>('text');
   const [flashOn, setFlashOn] = useState(false);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
@@ -158,7 +160,7 @@ export const OCRScannerScreen: React.FC = () => {
       <StatusBar barStyle="light-content" />
 
       {/* Top Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top, height: 56 + insets.top }]}>
         <Pressable onPress={() => router.back()} style={styles.circleButton}>
           <Ionicons name="arrow-back" size={20} color={colors.onSurface} />
         </Pressable>
@@ -184,7 +186,7 @@ export const OCRScannerScreen: React.FC = () => {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 50 + insets.bottom }]}
       >
         {/* Scanner Viewfinder with Real/Captured Image Preview */}
         <ViewfinderOverlay
@@ -306,11 +308,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background
   },
   header: {
-    height: 60,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
+    paddingBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: colors.outlineVariant
   },

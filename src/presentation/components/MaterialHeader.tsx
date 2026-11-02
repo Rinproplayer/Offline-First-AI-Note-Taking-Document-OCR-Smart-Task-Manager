@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, radius } from '../theme/colors';
 import { useAuthStore } from '../stores/useAuthStore';
@@ -20,11 +21,12 @@ export const MaterialHeader: React.FC<MaterialHeaderProps> = ({
   onNotificationPress,
   onSettingsPress
 }) => {
+  const insets = useSafeAreaInsets();
   const { user } = useAuthStore();
   const { status, triggerSync } = useSyncStore();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top, height: 60 + insets.top }]}>
       {/* Brand Logo & Title */}
       <View style={styles.brandRow}>
         <View style={styles.logoBadge}>
@@ -70,12 +72,12 @@ export const MaterialHeader: React.FC<MaterialHeaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    height: 64,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    backgroundColor: 'rgba(11, 19, 38, 0.95)',
+    paddingBottom: 8,
+    backgroundColor: 'rgba(11, 19, 38, 0.98)',
     borderBottomWidth: 1,
     borderBottomColor: colors.outlineVariant
   },

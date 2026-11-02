@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, typography, radius } from '../theme/colors';
 import { AIAssistantBottomSheet } from '../components/AIAssistantBottomSheet';
 import { useNoteById, useUpdateNote, useCreateNote } from '../hooks/useNotesQuery';
@@ -31,6 +32,7 @@ import { AIPromptType } from '../../domain/repositories/IAIService';
  */
 export const NoteEditorScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const isNew = !id || id === 'new';
 
@@ -177,7 +179,7 @@ export const NoteEditorScreen: React.FC = () => {
       <StatusBar barStyle="light-content" />
 
       {/* Editor Top Navigation Bar (Material 3 Touch Targets >= 48dp) */}
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: insets.top, height: 56 + insets.top }]}>
         <Pressable
           onPress={() => router.back()}
           style={({ pressed }) => [styles.circleButton, pressed && { opacity: 0.75 }]}
@@ -218,7 +220,10 @@ export const NoteEditorScreen: React.FC = () => {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.editorContent}
+        contentContainerStyle={[
+          styles.editorContent,
+          { paddingBottom: 80 + Math.max(insets.bottom, 12) }
+        ]}
       >
         {/* Title Input */}
         <TextInput
@@ -284,7 +289,15 @@ export const NoteEditorScreen: React.FC = () => {
       </ScrollView>
 
       {/* Formatting Toolbar */}
-      <View style={styles.toolbar}>
+      <View
+        style={[
+          styles.toolbar,
+          {
+            paddingBottom: Math.max(insets.bottom, 12),
+            height: 54 + Math.max(insets.bottom, 12)
+          }
+        ]}
+      >
         <Pressable style={styles.toolIcon}>
           <Ionicons name="text" size={18} color={colors.onSurface} />
         </Pressable>
@@ -333,14 +346,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background // Slate #0F172A
   },
   topBar: {
-    height: 60,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
+    paddingBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: colors.outlineVariant,
-    backgroundColor: 'rgba(15, 23, 42, 0.95)'
+    backgroundColor: 'rgba(15, 23, 42, 0.98)'
   },
   circleButton: {
     width: 40,
@@ -500,14 +513,14 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 54,
     backgroundColor: colors.surfaceContainer,
     borderTopWidth: 1,
     borderTopColor: colors.outlineVariant,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 10
+    paddingHorizontal: 10,
+    paddingTop: 8
   },
   toolIcon: {
     width: 44,

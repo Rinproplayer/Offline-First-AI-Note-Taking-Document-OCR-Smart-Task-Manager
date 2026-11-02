@@ -12,6 +12,7 @@ import {
   Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, typography, radius } from '../theme/colors';
 import { useAIStore } from '../stores/useAIStore';
 import { AIPromptType } from '../../domain/repositories/IAIService';
@@ -27,6 +28,7 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
   onRequestStream,
   onCreateTasks
 }) => {
+  const insets = useSafeAreaInsets();
   const {
     isBottomSheetOpen,
     closeBottomSheet,
@@ -78,7 +80,12 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
       >
         <Pressable style={styles.dismissArea} onPress={closeBottomSheet} />
 
-        <View style={styles.sheetContainer}>
+        <View
+          style={[
+            styles.sheetContainer,
+            { paddingBottom: Math.max(insets.bottom + 12, 28) }
+          ]}
+        >
           {/* Handle Bar */}
           <View style={styles.handleBar} />
 
