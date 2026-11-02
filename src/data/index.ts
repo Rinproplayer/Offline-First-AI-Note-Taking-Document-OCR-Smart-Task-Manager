@@ -5,6 +5,7 @@ export * from './watermelon/models/TaskModel';
 export * from './cache/mmkvStorage';
 export * from './sync/supabaseClient';
 export * from './sync/supabaseSync';
+export * from './sync/supabasesync';
 export * from './ocr/mlKitOCRService';
 export * from './ai/streamingLLMClient';
 export * from './repositories/WatermelonNoteRepository';
