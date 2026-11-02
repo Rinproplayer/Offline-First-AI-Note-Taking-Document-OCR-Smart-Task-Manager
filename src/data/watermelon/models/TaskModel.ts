@@ -1,7 +1,7 @@
 import { Model, Relation } from '@nozbe/watermelondb';
 import { field, text, date, relation } from '@nozbe/watermelondb/decorators';
-import { Task, TaskPriority, TaskSource, TaskStatus } from '../../domain/entities/Task';
-import { SyncStatus } from '../../domain/entities/Note';
+import { Task, TaskPriority, TaskSource, TaskStatus } from '../../../domain/entities/Task';
+import { SyncStatus } from '../../../domain/entities/Note';
 import { NoteModel } from './NoteModel';
 
 export class TaskModel extends Model {
@@ -19,17 +19,18 @@ export class TaskModel extends Model {
   @text('description') description?: string;
   @field('is_completed') isCompleted!: boolean;
   @text('source') source!: string;
-  @text('sync_status') syncStatus!: string;
+  @text('sync_status') localSyncStatus?: string;
   @date('created_at') createdAt!: Date;
   @date('updated_at') updatedAt!: Date;
 
   @relation('notes', 'note_id') note!: Relation<NoteModel>;
 
-  /**
-   * Converts the WatermelonDB model into a pure Domain Entity.
-   */
   toEntity(): Task {
     const rawStatus = (this.status as TaskStatus) || (this.isCompleted ? 'completed' : 'pending');
+    const syncStatus: SyncStatus =
+      (this.localSyncStatus as SyncStatus) ||
+      (this.syncStatus === 'synced' ? 'synced' : 'pending');
+
     return {
       id: this.id,
       noteId: this.noteId,
@@ -42,7 +43,7 @@ export class TaskModel extends Model {
       source: (this.source as TaskSource) || 'manual',
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      syncStatus: (this.syncStatus as SyncStatus) || 'synced'
+      syncStatus
     };
   }
 }

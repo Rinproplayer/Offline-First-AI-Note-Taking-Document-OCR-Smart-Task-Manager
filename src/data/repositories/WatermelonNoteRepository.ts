@@ -3,7 +3,7 @@ import { INoteRepository } from '../../domain/repositories/INoteRepository';
 import { Note, SyncStatus } from '../../domain/entities/Note';
 import { database, notesCollection } from '../watermelon/database';
 import { NoteModel } from '../watermelon/models/NoteModel';
-import { synchronizeWithSupabase } from '../sync/supabasesync';
+import { synchronizeWithSupabase } from '../sync/supabaseSync';
 
 /**
  * Repository Implementation quản lý toàn bộ vòng đời của thực thể Note.
@@ -71,7 +71,7 @@ export class WatermelonNoteRepository implements INoteRepository {
           model.title = noteData.title;
           model.content = noteData.content;
           model.tags = noteData.tags || [];
-          model.syncStatus = 'pending';
+          model.localSyncStatus = 'pending';
           model.isPinned = !!noteData.isPinned;
           model.isArchived = !!noteData.isArchived;
           model.hasOcr = !!noteData.hasOcr;
@@ -114,7 +114,7 @@ export class WatermelonNoteRepository implements INoteRepository {
           if (updates.hasOcr !== undefined) model.hasOcr = updates.hasOcr;
           if (updates.ocrRawText !== undefined) model.ocrRawText = updates.ocrRawText;
           if (updates.aiSummary !== undefined) model.aiSummary = updates.aiSummary;
-          model.syncStatus = 'pending';
+          model.localSyncStatus = 'pending';
         });
       });
 

@@ -36,6 +36,7 @@ export const TaskTrackerScreen: React.FC = () => {
     if (!newTaskTitle.trim()) return;
     createTaskMutation.mutate({
       title: newTaskTitle.trim(),
+      status: 'pending',
       isCompleted: false,
       priority: priorityFilter === 'all' ? 'medium' : (priorityFilter as TaskPriority),
       source: 'manual',
@@ -326,7 +327,7 @@ const styles = StyleSheet.create({
   },
   segmentedContainer: {
     flexDirection: 'row',
-    backgroundColor: colors.surfaceContainerLowest || '#060E20',
+    backgroundColor: colors.surfaceLow,
     borderRadius: radius.full,
     padding: 4,
     marginBottom: 12

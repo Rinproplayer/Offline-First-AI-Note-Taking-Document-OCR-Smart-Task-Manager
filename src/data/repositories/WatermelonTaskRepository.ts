@@ -56,11 +56,12 @@ export class WatermelonTaskRepository implements ITaskRepository {
           model.noteId = taskData.noteId;
           model.title = taskData.title;
           model.description = taskData.description;
+          model.status = taskData.status || (taskData.isCompleted ? 'completed' : 'pending');
           model.isCompleted = !!taskData.isCompleted;
           model.priority = taskData.priority;
           model.dueDate = taskData.dueDate;
           model.source = taskData.source;
-          model.syncStatus = 'pending';
+          model.localSyncStatus = 'pending';
         });
       });
       return createdModel.toEntity();
@@ -85,7 +86,8 @@ export class WatermelonTaskRepository implements ITaskRepository {
           if (updates.isCompleted !== undefined) m.isCompleted = updates.isCompleted;
           if (updates.priority !== undefined) m.priority = updates.priority;
           if (updates.dueDate !== undefined) m.dueDate = updates.dueDate;
-          m.syncStatus = 'pending';
+          if (updates.status !== undefined) m.status = updates.status;
+          m.localSyncStatus = 'pending';
         });
       });
       return model.toEntity();
@@ -133,6 +135,7 @@ export class WatermelonTaskRepository implements ITaskRepository {
         id: 'task_1',
         title: 'Nộp bản thảo kiến trúc Clean Architecture Capstone',
         description: 'Đảm bảo thư mục Domain không chứa bất kỳ thư viện UI nào',
+        status: 'completed',
         isCompleted: true,
         priority: 'high',
         dueDate: now,
@@ -145,6 +148,7 @@ export class WatermelonTaskRepository implements ITaskRepository {
         id: 'task_2',
         title: 'Tích hợp mô hình OCR Google ML Kit vào pipeline nhận diện',
         description: 'Xử lý nhận diện văn bản tiếng Việt tốc độ cao',
+        status: 'pending',
         isCompleted: false,
         priority: 'high',
         dueDate: now,
@@ -157,6 +161,7 @@ export class WatermelonTaskRepository implements ITaskRepository {
         id: 'task_3',
         title: 'Tối ưu danh sách tác vụ với FlashList đạt 60fps',
         description: 'Kiểm thử render mượt mà không rớt khung hình trên màn hình tần số quét 120Hz',
+        status: 'pending',
         isCompleted: false,
         priority: 'medium',
         dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
@@ -169,6 +174,7 @@ export class WatermelonTaskRepository implements ITaskRepository {
         id: 'task_4',
         title: 'Cấu hình RLS PostgreSQL trên Supabase cho dữ liệu sinh viên',
         description: 'Phân quyền hàng theo user_id để bảo mật tuyệt đối',
+        status: 'completed',
         isCompleted: true,
         priority: 'medium',
         dueDate: new Date(Date.now() - 1000 * 60 * 60 * 36),
@@ -181,6 +187,7 @@ export class WatermelonTaskRepository implements ITaskRepository {
         id: 'task_5',
         title: 'Chuẩn bị slide thuyết trình demo đồng bộ Offline-First',
         description: 'Minh họa cơ chế lưu WatermelonDB khi mất mạng và tự động đẩy khi có mạng',
+        status: 'pending',
         isCompleted: false,
         priority: 'low',
         dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 4),

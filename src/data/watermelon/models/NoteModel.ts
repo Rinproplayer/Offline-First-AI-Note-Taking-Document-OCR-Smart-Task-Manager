@@ -1,6 +1,6 @@
 import { Model, Query } from '@nozbe/watermelondb';
 import { field, text, json, date, children } from '@nozbe/watermelondb/decorators';
-import { Note, SyncStatus } from '../../domain/entities/Note';
+import { Note, SyncStatus } from '../../../domain/entities/Note';
 import { TaskModel } from './TaskModel';
 
 export class NoteModel extends Model {
@@ -13,7 +13,7 @@ export class NoteModel extends Model {
   @text('title') title!: string;
   @text('content') content!: string;
   @json('tags', (raw: unknown) => (Array.isArray(raw) ? (raw as string[]) : [])) tags!: string[];
-  @text('sync_status') syncStatus!: string;
+  @text('sync_status') localSyncStatus?: string;
   @field('is_pinned') isPinned?: boolean;
   @field('is_archived') isArchived?: boolean;
   @field('has_ocr') hasOcr?: boolean;
@@ -24,10 +24,11 @@ export class NoteModel extends Model {
 
   @children('tasks') tasks!: Query<TaskModel>;
 
-  /**
-   * Converts the WatermelonDB model into a pure Domain Entity.
-   */
   toEntity(): Note {
+    const status: SyncStatus =
+      (this.localSyncStatus as SyncStatus) ||
+      (this.syncStatus === 'synced' ? 'synced' : 'pending');
+
     return {
       id: this.id,
       title: this.title,
@@ -40,7 +41,7 @@ export class NoteModel extends Model {
       aiSummary: this.aiSummary,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      syncStatus: (this.syncStatus as SyncStatus) || 'synced'
+      syncStatus: status
     };
   }
 }
