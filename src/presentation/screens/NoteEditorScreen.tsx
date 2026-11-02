@@ -101,9 +101,44 @@ export const NoteEditorScreen: React.FC = () => {
   /**
    * Xử lý yêu cầu phát luồng AI tóm tắt hoặc bóc tách nhiệm vụ
    */
-  const handleRequestStream = (promptType: AIPromptType) => {
-    startStream(id || 'temp_note', content, promptType);
-  };
+  const handleRequestStream = useCallback(
+    (promptType: AIPromptType) => {
+      const textToAnalyze = content.trim() || title.trim();
+      startStream(isNew ? '' : (id || ''), textToAnalyze, promptType);
+    },
+    [startStream, content, title, isNew, id]
+  );
+
+  /**
+   * Mở Bottom Sheet và tự động kích hoạt luồng phát AI ngay lập tức
+   */
+  const handleOpenAI = useCallback(
+    (promptType: AIPromptType) => {
+      openBottomSheet(promptType);
+      handleRequestStream(promptType);
+    },
+    [openBottomSheet, handleRequestStream]
+  );
+
+  /**
+   * Bóc tách các đầu việc từ nội dung và lưu trực tiếp vào cơ sở dữ liệu Task Tracker
+   */
+  const handleCreateTasks = useCallback(async () => {
+    try {
+      const textToAnalyze = content.trim() || title.trim();
+      const res = await streamActionItems(isNew ? '' : (id || ''), textToAnalyze);
+      Alert.alert(
+        'Đã tạo nhiệm vụ thành công! ✅',
+        `Đã trích xuất ${res.createdTasks.length} nhiệm vụ mới vào Task Tracker.`,
+        [
+          { text: 'Mở Danh sách Việc', onPress: () => router.push('/tasks') },
+          { text: 'Tiếp tục soạn thảo' }
+        ]
+      );
+    } catch (err: any) {
+      Alert.alert('Lỗi tạo nhiệm vụ', err.message);
+    }
+  }, [content, title, isNew, id, streamActionItems, router]);
 
   /**
    * Chèn nội dung tóm tắt hoặc kết quả AI vào cuối văn bản
@@ -213,7 +248,7 @@ export const NoteEditorScreen: React.FC = () => {
 
         {/* Luminous AI Copilot Banner */}
         <Pressable
-          onPress={() => openBottomSheet('summary')}
+          onPress={() => handleOpenAI('summary')}
           style={({ pressed }) => [styles.aiBanner, pressed && { opacity: 0.9 }]}
         >
           <View style={styles.aiBannerLeft}>
@@ -274,7 +309,7 @@ export const NoteEditorScreen: React.FC = () => {
 
         {/* AI Copilot Action Trigger */}
         <Pressable
-          onPress={() => openBottomSheet('action_items')}
+          onPress={() => handleOpenAI('action_items')}
           style={[styles.toolIcon, styles.aiToolIcon]}
         >
           <Ionicons name="sparkles" size={18} color={colors.primary} />
@@ -286,6 +321,7 @@ export const NoteEditorScreen: React.FC = () => {
       <AIAssistantBottomSheet
         onInsertToNote={handleInsertSummary}
         onRequestStream={handleRequestStream}
+        onCreateTasks={handleCreateTasks}
       />
     </KeyboardAvoidingView>
   );

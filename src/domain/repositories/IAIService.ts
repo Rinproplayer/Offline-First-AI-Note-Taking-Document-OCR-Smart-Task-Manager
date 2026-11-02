@@ -31,7 +31,7 @@ export interface ExtractedTaskCandidate {
 export interface IAIService {
   extractTextFromImage(
     imageUri: string,
-    options?: { mode?: 'text' | 'receipt' | 'latex' | 'table' }
+    options?: { mode?: 'text' | 'receipt' | 'latex' | 'table'; base64?: string }
   ): Promise<OCRResult>;
 
   streamNoteSummary(

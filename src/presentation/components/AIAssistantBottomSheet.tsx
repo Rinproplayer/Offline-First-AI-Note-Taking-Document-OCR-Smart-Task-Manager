@@ -16,11 +16,13 @@ import { AIPromptType } from '../../domain/repositories/IAIService';
 interface AIAssistantBottomSheetProps {
   onInsertToNote: (text: string) => void;
   onRequestStream: (type: AIPromptType) => void;
+  onCreateTasks?: () => void;
 }
 
 export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
   onInsertToNote,
-  onRequestStream
+  onRequestStream,
+  onCreateTasks
 }) => {
   const {
     isBottomSheetOpen,
@@ -66,9 +68,24 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
               </View>
             </View>
 
-            <Pressable onPress={closeBottomSheet} style={styles.closeButton}>
-              <Ionicons name="close" size={20} color={colors.onSurfaceVariant} />
-            </Pressable>
+            <View style={styles.headerRightActions}>
+              {/* Nút phát luồng lại */}
+              <Pressable
+                disabled={isStreaming}
+                onPress={() => onRequestStream(activePrompt)}
+                style={({ pressed }) => [
+                  styles.reloadButton,
+                  pressed && { opacity: 0.7 },
+                  isStreaming && { opacity: 0.5 }
+                ]}
+              >
+                <Ionicons name="refresh-outline" size={18} color={colors.primaryFixed} />
+              </Pressable>
+
+              <Pressable onPress={closeBottomSheet} style={styles.closeButton}>
+                <Ionicons name="close" size={20} color={colors.onSurfaceVariant} />
+              </Pressable>
+            </View>
           </View>
 
           {/* Quick Action Chips */}
@@ -103,11 +120,11 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
 
           {/* Streaming Output Container */}
           <View style={styles.outputBox}>
-            <ScrollView style={styles.scrollOutput}>
+            <ScrollView style={styles.scrollOutput} showsVerticalScrollIndicator={true}>
               {isStreaming && !streamedContent ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color={colors.primary} />
-                  <Text style={styles.loadingText}>Đang xử lý luồng AI thời gian thực...</Text>
+                  <Text style={styles.loadingText}>Đang khởi tạo luồng xử lý AI thời gian thực...</Text>
                 </View>
               ) : streamedContent ? (
                 <View>
@@ -116,7 +133,7 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
                 </View>
               ) : (
                 <Text style={styles.placeholderText}>
-                  Chọn một hành động phía trên để AI tóm tắt hoặc trích xuất thông tin ghi chú.
+                  Đang chờ yêu cầu... Chạm vào một trong các thẻ phía trên để bắt đầu phát luồng.
                 </Text>
               )}
             </ScrollView>
@@ -124,6 +141,24 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
 
           {/* Bottom Actions */}
           <View style={styles.actionsFooter}>
+            {activePrompt === 'action_items' && onCreateTasks && (
+              <Pressable
+                disabled={!streamedContent || isStreaming}
+                onPress={() => {
+                  onCreateTasks();
+                  closeBottomSheet();
+                }}
+                style={({ pressed }) => [
+                  styles.taskCreateButton,
+                  (!streamedContent || isStreaming) && styles.disabledButton,
+                  pressed && { opacity: 0.85 }
+                ]}
+              >
+                <Ionicons name="checkbox-outline" size={17} color={colors.secondary} />
+                <Text style={styles.taskCreateButtonText}>Lưu thành Nhiệm vụ</Text>
+              </Pressable>
+            )}
+
             <Pressable
               disabled={!streamedContent || isStreaming}
               onPress={() => {
@@ -160,8 +195,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     paddingHorizontal: 16,
-    paddingBottom: 28,
-    maxHeight: '80%',
+    paddingBottom: 32,
+    maxHeight: '82%',
     borderTopWidth: 1,
     borderTopColor: colors.outlineVariant
   },
@@ -184,6 +219,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10
+  },
+  headerRightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+  },
+  reloadButton: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.full,
+    backgroundColor: 'rgba(99, 102, 241, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.3)'
   },
   aiBadge: {
     width: 34,
@@ -252,14 +302,15 @@ const styles = StyleSheet.create({
     flex: 1
   },
   loadingContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 30,
-    gap: 10
+    gap: 10,
+    paddingVertical: 20
   },
   loadingText: {
-    ...typography.bodySm,
-    color: colors.onSurfaceVariant
+    ...typography.bodyMd,
+    color: colors.primaryFixed,
+    fontWeight: '500'
   },
   outputText: {
     ...typography.bodyMd,
@@ -274,29 +325,44 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     ...typography.bodyMd,
-    color: colors.onSurfaceVariant,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    paddingVertical: 40
+    color: colors.outline,
+    lineHeight: 22,
+    fontStyle: 'italic'
   },
   actionsFooter: {
-    marginTop: 14,
+    marginTop: 16,
     flexDirection: 'row',
-    justifyContent: 'flex-end'
+    gap: 10
+  },
+  taskCreateButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 13,
+    borderRadius: radius.full,
+    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(56, 189, 248, 0.4)'
+  },
+  taskCreateButtonText: {
+    ...typography.labelLg,
+    color: colors.secondary,
+    fontWeight: '700'
   },
   primaryButton: {
+    flex: 1.5,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: colors.primary,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 13,
     borderRadius: radius.full,
-    width: '100%'
+    backgroundColor: colors.primary
   },
   disabledButton: {
-    opacity: 0.5
+    opacity: 0.4
   },
   primaryButtonText: {
     ...typography.labelLg,

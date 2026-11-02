@@ -5,9 +5,9 @@ import { streamingLLMClient } from '../ai/streamingLLMClient';
 export class AIServiceImpl implements IAIService {
   async extractTextFromImage(
     imageUri: string,
-    options?: { mode?: 'text' | 'receipt' | 'latex' | 'table' }
+    options?: { mode?: 'text' | 'receipt' | 'latex' | 'table'; base64?: string }
   ): Promise<OCRResult> {
-    return mlKitOCRService.processImage(imageUri, options?.mode || 'text');
+    return mlKitOCRService.processImage(imageUri, options?.mode || 'text', options?.base64);
   }
 
   async streamNoteSummary(

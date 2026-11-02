@@ -25,6 +25,11 @@ export interface ExtractOCROptions {
    * Danh sách nhãn (tags) bổ sung cho ghi chú
    */
   tags?: string[];
+
+  /**
+   * Dữ liệu hình ảnh Base64 (phục vụ OCR chính xác cao)
+   */
+  base64?: string;
 }
 
 /**
@@ -72,7 +77,8 @@ export class ExtractTextOCRUseCase {
 
     // 1. Gọi service nhận diện văn bản trên thiết bị (Google ML Kit OCR)
     const ocrResult = await this.aiService.extractTextFromImage(options.imageUri, {
-      mode: options.mode || 'text'
+      mode: options.mode || 'text',
+      base64: options.base64
     });
 
     const recognizedText = ocrResult.rawText ? ocrResult.rawText.trim() : '';

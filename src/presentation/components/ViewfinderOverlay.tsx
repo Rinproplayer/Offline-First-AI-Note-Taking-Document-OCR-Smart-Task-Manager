@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Animated, Pressable, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, radius } from '../theme/colors';
 
@@ -9,12 +9,14 @@ interface ViewfinderOverlayProps {
   mode: OCRScanMode;
   onModeChange: (mode: OCRScanMode) => void;
   detectedBlocksCount: number;
+  imageUri?: string | null;
 }
 
 export const ViewfinderOverlay: React.FC<ViewfinderOverlayProps> = ({
   mode,
   onModeChange,
-  detectedBlocksCount
+  detectedBlocksCount,
+  imageUri
 }) => {
   const scanLineAnim = useRef(new Animated.Value(0)).current;
 
@@ -74,6 +76,20 @@ export const ViewfinderOverlay: React.FC<ViewfinderOverlayProps> = ({
 
       {/* Frame Viewport */}
       <View style={styles.viewport}>
+        {/* Real captured/picked image */}
+        {imageUri ? (
+          <Image
+            source={{ uri: imageUri }}
+            style={styles.capturedImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.placeholderContainer}>
+            <Ionicons name="camera-outline" size={36} color="rgba(255,255,255,0.3)" />
+            <Text style={styles.placeholderTip}>Hướng camera vào tài liệu hoặc chữ viết tay</Text>
+          </View>
+        )}
+
         {/* Corner Brackets */}
         <View style={[styles.corner, styles.topLeft]} />
         <View style={[styles.corner, styles.topRight]} />
@@ -150,6 +166,22 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'space-between',
     padding: 16
+  },
+  capturedImage: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: radius.xl
+  },
+  placeholderContainer: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20
+  },
+  placeholderTip: {
+    ...typography.bodySm,
+    color: 'rgba(255, 255, 255, 0.45)',
+    textAlign: 'center',
+    marginTop: 8
   },
   corner: {
     position: 'absolute',
