@@ -13,12 +13,14 @@ export class AIServiceImpl implements IAIService {
   async streamNoteSummary(
     noteContent: string,
     promptType: AIPromptType,
-    onToken: (token: string) => void
+    onToken: (token: string) => void,
+    customPrompt?: string
   ): Promise<string> {
     return streamingLLMClient.streamResponse({
       content: noteContent,
       promptType,
-      onToken
+      onToken,
+      customPrompt
     });
   }
 

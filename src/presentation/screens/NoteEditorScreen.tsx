@@ -102,9 +102,9 @@ export const NoteEditorScreen: React.FC = () => {
    * Xử lý yêu cầu phát luồng AI tóm tắt hoặc bóc tách nhiệm vụ
    */
   const handleRequestStream = useCallback(
-    (promptType: AIPromptType) => {
+    (promptType: AIPromptType, customPrompt?: string) => {
       const textToAnalyze = content.trim() || title.trim();
-      startStream(isNew ? '' : (id || ''), textToAnalyze, promptType);
+      startStream(isNew ? '' : (id || ''), textToAnalyze, promptType, customPrompt);
     },
     [startStream, content, title, isNew, id]
   );
@@ -113,9 +113,9 @@ export const NoteEditorScreen: React.FC = () => {
    * Mở Bottom Sheet và tự động kích hoạt luồng phát AI ngay lập tức
    */
   const handleOpenAI = useCallback(
-    (promptType: AIPromptType) => {
+    (promptType: AIPromptType, customPrompt?: string) => {
       openBottomSheet(promptType);
-      handleRequestStream(promptType);
+      handleRequestStream(promptType, customPrompt);
     },
     [openBottomSheet, handleRequestStream]
   );

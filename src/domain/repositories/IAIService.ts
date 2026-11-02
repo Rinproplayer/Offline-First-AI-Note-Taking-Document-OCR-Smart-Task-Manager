@@ -20,7 +20,14 @@ export interface OCRResult {
   detectedLanguage?: string;
 }
 
-export type AIPromptType = 'summary' | 'action_items' | 'translate' | 'explain';
+export type AIPromptType =
+  | 'summary'
+  | 'detailed_summary'
+  | 'action_items'
+  | 'critique'
+  | 'translate'
+  | 'explain'
+  | 'custom';
 
 export interface ExtractedTaskCandidate {
   title: string;
@@ -37,7 +44,8 @@ export interface IAIService {
   streamNoteSummary(
     noteContent: string,
     promptType: AIPromptType,
-    onToken: (token: string) => void
+    onToken: (token: string) => void,
+    customPrompt?: string
   ): Promise<string>;
 
   extractTasksFromContent(content: string): Promise<ExtractedTaskCandidate[]>;

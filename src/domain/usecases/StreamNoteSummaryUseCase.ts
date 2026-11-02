@@ -12,6 +12,7 @@ export interface StreamNoteSummaryOptions {
   onToken: (token: string) => void;
   promptType?: AIPromptType;
   autoSaveToNote?: boolean;
+  customPrompt?: string;
 }
 
 /**
@@ -37,13 +38,14 @@ export class StreamNoteSummaryUseCase {
   ) {}
 
   /**
-   * Tóm tắt nội dung ghi chú thành các gạch đầu dòng ngắn gọn và lưu kết quả vào Note.
+   * Tóm tắt hoặc xử lý nội dung ghi chú theo yêu cầu AI đã chọn và lưu kết quả vào Note.
    */
   async summarizeNote(options: StreamNoteSummaryOptions): Promise<string> {
     const fullSummary = await this.aiService.streamNoteSummary(
       options.noteContent,
-      'summary',
-      options.onToken
+      options.promptType || 'summary',
+      options.onToken,
+      options.customPrompt
     );
 
     if (options.autoSaveToNote !== false && options.noteId) {

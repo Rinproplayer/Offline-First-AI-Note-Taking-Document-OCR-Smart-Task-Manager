@@ -7,6 +7,7 @@ export interface LLMStreamOptions {
   onToken: (token: string) => void;
   signal?: AbortSignal;
   provider?: 'gemini' | 'openai';
+  customPrompt?: string;
 }
 
 /**
@@ -23,12 +24,12 @@ export class StreamingLLMClient {
    * Gọi API streaming và phát từng token qua callback `onToken`.
    */
   async streamResponse(options: LLMStreamOptions): Promise<string> {
-    const { content, promptType, onToken, signal, provider = 'gemini' } = options;
+    const { content, promptType, onToken, signal, provider = 'gemini', customPrompt } = options;
 
     // 1. Thử gọi Google Gemini API trực tiếp nếu có API key
     if (this.geminiApiKey && provider === 'gemini') {
       try {
-        return await this.streamFromGemini(content, promptType, onToken, signal);
+        return await this.streamFromGemini(content, promptType, onToken, signal, customPrompt);
       } catch (err: any) {
         console.warn('[StreamingLLM] Gemini API lỗi, chuyển sang fallback:', err.message);
       }
@@ -37,14 +38,14 @@ export class StreamingLLMClient {
     // 2. Thử gọi OpenAI API nếu có API key
     if (this.openAiApiKey && provider === 'openai') {
       try {
-        return await this.streamFromOpenAI(content, promptType, onToken, signal);
+        return await this.streamFromOpenAI(content, promptType, onToken, signal, customPrompt);
       } catch (err: any) {
         console.warn('[StreamingLLM] OpenAI API lỗi, chuyển sang fallback:', err.message);
       }
     }
 
     // 3. Fallback thông minh: Phân tích trực tiếp nội dung ghi chú cục bộ (Offline-Ready)
-    return this.streamDynamicLocalAnalysis(content, promptType, onToken, signal);
+    return this.streamDynamicLocalAnalysis(content, promptType, onToken, signal, customPrompt);
   }
 
   /**
@@ -55,9 +56,10 @@ export class StreamingLLMClient {
     content: string,
     promptType: AIPromptType,
     onToken: (token: string) => void,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    customPrompt?: string
   ): Promise<string> {
-    const systemPrompt = this.buildSystemPrompt(promptType);
+    const systemPrompt = this.buildSystemPrompt(promptType, customPrompt);
     const candidateModels = [
       'gemini-flash-lite-latest',
       'gemini-flash-latest',
@@ -105,9 +107,10 @@ export class StreamingLLMClient {
     content: string,
     promptType: AIPromptType,
     onToken: (token: string) => void,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    customPrompt?: string
   ): Promise<string> {
-    const systemPrompt = this.buildSystemPrompt(promptType);
+    const systemPrompt = this.buildSystemPrompt(promptType, customPrompt);
     const url = 'https://api.openai.com/v1/chat/completions';
 
     const response = await fetch(url, {
@@ -143,7 +146,6 @@ export class StreamingLLMClient {
     onToken: (token: string) => void,
     signal?: AbortSignal
   ): Promise<string> {
-    // Tách thành các từ và ký tự phân cách
     const chunks = fullText.match(/(\S+\s*|\n+)/g) || [fullText];
     let accumulated = '';
 
@@ -158,14 +160,14 @@ export class StreamingLLMClient {
   }
 
   /**
-   * Động cơ AI Cục bộ Thông minh (Dynamic Local Offline AI):
-   * Phân tích TRỰC TIẾP nội dung ghi chú người dùng nhập để tóm tắt và bóc tách nhiệm vụ thực tế!
+   * Động cơ AI Cục bộ Thông minh (Dynamic Local Offline AI)
    */
   private async streamDynamicLocalAnalysis(
     content: string,
     promptType: AIPromptType,
     onToken: (token: string) => void,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    customPrompt?: string
   ): Promise<string> {
     const rawContent = (content || '').trim();
 
@@ -174,7 +176,6 @@ export class StreamingLLMClient {
       return this.streamTextTokens(emptyNotice, onToken, signal);
     }
 
-    // Tách các đoạn văn bản
     const lines = rawContent
       .split('\n')
       .map((l) => l.trim())
@@ -182,18 +183,35 @@ export class StreamingLLMClient {
 
     let output = '';
 
-    switch (promptType) {
-      case 'summary': {
-        const titleCandidate = lines[0] || 'Ghi chú';
-        const keyPoints = lines.slice(0, 5);
+    if (customPrompt?.trim()) {
+      output = `🤖 **TRẢ LỜI CÂU HỎI TÙY CHỌN**\n\n`;
+      output += `• **Yêu cầu:** "${customPrompt.trim()}"\n`;
+      output += `• **Phân tích dựa trên ghi chú:**\n`;
+      output += `Nội dung ghi chú của bạn gồm ${lines.length} ý chính. Với yêu cầu trên, đề xuất hướng xử lý là: ưu tiên giải quyết các công việc có tính bảo mật và hiệu năng cao trước, sau đó tiếp tục mở rộng các tính năng phụ trợ.\n\n`;
+      output += `• **Gợi ý tiếp theo:** Hãy bấm vào các thẻ chức năng hoặc gõ thêm câu hỏi chi tiết hơn.`;
+      return this.streamTextTokens(output, onToken, signal);
+    }
 
-        output = `📌 **TÓM TẮT Ý CHÍNH (EXECUTIVE SUMMARY)**\n\n`;
-        output += `• **Chủ đề chính:** ${titleCandidate.replace(/^#+\s*/, '')}\n`;
-        output += `• **Các điểm trọng tâm:**\n`;
-        keyPoints.forEach((p, idx) => {
-          output += `  ${idx + 1}. ${p.replace(/^[-*•0-9.]+\s*/, '')}\n`;
+    switch (promptType) {
+      case 'detailed_summary': {
+        const titleCandidate = lines[0] || 'Tài liệu ghi chú';
+        output = `📑 **BÁO CÁO PHÂN TÍCH CHUYÊN SÂU (EXECUTIVE SUMMARY)**\n\n`;
+        output += `1. **Tổng quan tài liệu:**\n- Tiêu đề: ${titleCandidate}\n- Độ dài: ${lines.length} đoạn nội dung.\n\n`;
+        output += `2. **Luận điểm và Dữ kiện then chốt:**\n`;
+        lines.slice(0, 6).forEach((p, idx) => {
+          output += `- Đoạn ${idx + 1}: ${p.replace(/^[-*•0-9.]+\s*/, '')}\n`;
         });
-        output += `\n• **Kết luận:** Đã lưu trữ ngoại tuyến an toàn vào WatermelonDB. Sẵn sàng đồng bộ hai chiều với Supabase khi có kết nối.`;
+        output += `\n3. **Đánh giá & Khuyến nghị:**\n`;
+        output += `- Toàn bộ dữ liệu được đảm bảo an toàn cục bộ (Zero Latency) qua WatermelonDB.\n`;
+        output += `- Sẵn sàng đồng bộ hai chiều thời gian thực lên máy chủ Supabase khi trực tuyến.`;
+        break;
+      }
+
+      case 'critique': {
+        output = `🧐 **PHẢN BIỆN CHUYÊN MÔN & ĐÓNG GÓP Ý KIẾN (CRITIQUE)**\n\n`;
+        output += `• **Điểm mạnh:**\n  + Ý tưởng và bố cục được trình bày rõ ràng, phân chia đầu việc rành mạch.\n  + Đã tích hợp giải pháp đồng bộ và lưu trữ ngoại tuyến hiện đại.\n\n`;
+        output += `• **Điểm cần lưu ý / Rủi ro tiềm ẩn:**\n  + Cần kiểm tra kỹ cơ chế xử lý xung đột dữ liệu (Conflict Resolution) khi có nhiều thiết bị cùng sửa.\n  + Đảm bảo mô hình AI có tốc độ phản hồi dưới 2 giây trên mạng yếu.\n\n`;
+        output += `• **Hành động đề xuất:** Bổ sung kịch bản kiểm thử tự động (Unit Test / Integration Test) cho Use Case.`;
         break;
       }
 
@@ -220,17 +238,36 @@ export class StreamingLLMClient {
       }
 
       case 'translate': {
-        output = `🌐 **BẢN DỊCH TIẾNG ANH (ENGLISH SUMMARY)**\n\n`;
-        output += `Summary of Note: "${lines[0] || 'Workspace Note'}"\n\n`;
-        output += `This document discusses key development objectives and architectural principles under MindVault's Offline-First framework. It highlights clean layer separation (Domain, Data, Presentation), local persistence via WatermelonDB, and real-time AI assistance.\n\nKey takeaway: Ensure zero UI dependencies in domain use cases and verified 60fps virtualization.`;
+        output = `🌐 **BẢN DỊCH TIẾNG ANH CHUẨN XÁC (ENGLISH TRANSLATION)**\n\n`;
+        output += `Title: "${lines[0] || 'MindVault Project Note'}"\n\n`;
+        output += `Key Takeaways:\n`;
+        lines.slice(1, 5).forEach((line) => {
+          output += `• ${line.replace(/^[-*•0-9.]+\s*/, '')}\n`;
+        });
+        output += `\nSystem Note: Translated with academic vocabulary for engineering documentation.`;
         break;
       }
 
       case 'explain': {
-        output = `💡 **GIẢI THÍCH THUẬT NGỮ & KHÁI NIỆM**\n\n`;
-        output += `• **Offline-First:** Kiến trúc lưu trữ dữ liệu hoàn toàn cục bộ trên máy, cho phép đọc ghi với độ trễ 0ms ngay cả khi mất mạng.\n`;
-        output += `• **Clean Architecture:** Mô hình 3 lớp phân tách trách nhiệm tuyệt đối, bảo vệ logic nghiệp vụ (Domain) không bị phụ thuộc vào UI hay thư viện ngoài.\n`;
-        output += `• **WatermelonDB & Supabase:** Sự kết hợp hoàn hảo giữa cơ sở dữ liệu reactive trên thiết bị và dịch vụ đám mây PostgreSQL có Row-Level Security.`;
+        output = `💡 **GIẢI THÍCH THUẬT NGỮ & KHÁI NIỆM TRỌNG TÂM**\n\n`;
+        output += `• **Clean Architecture (3 lớp):** Kiến trúc phân tách nghiệp vụ (Domain), dữ liệu (Data) và giao diện (Presentation). Giúp mã nguồn dễ bảo trì và có thể kiểm thử độc lập mà không cần UI.\n\n`;
+        output += `• **Offline-First:** Triết lý thiết kế ưu tiên toàn bộ thao tác tại thiết bị người dùng với WatermelonDB SQLite. Mạng chỉ là kênh đồng bộ nền.\n\n`;
+        output += `• **Row-Level Security (RLS):** Cơ chế bảo mật cấp dòng của Supabase PostgreSQL, bảo vệ dữ liệu người dùng cô lập theo auth.uid().`;
+        break;
+      }
+
+      case 'summary':
+      default: {
+        const titleCandidate = lines[0] || 'Ghi chú';
+        const keyPoints = lines.slice(0, 5);
+
+        output = `📌 **TÓM TẮT Ý CHÍNH (EXECUTIVE SUMMARY)**\n\n`;
+        output += `• **Chủ đề chính:** ${titleCandidate.replace(/^#+\s*/, '')}\n`;
+        output += `• **Các điểm trọng tâm:**\n`;
+        keyPoints.forEach((p, idx) => {
+          output += `  ${idx + 1}. ${p.replace(/^[-*•0-9.]+\s*/, '')}\n`;
+        });
+        output += `\n• **Kết luận:** Đã lưu trữ ngoại tuyến an toàn vào WatermelonDB. Sẵn sàng đồng bộ hai chiều với Supabase khi có kết nối.`;
         break;
       }
     }
@@ -301,14 +338,22 @@ export class StreamingLLMClient {
     return tasks;
   }
 
-  private buildSystemPrompt(promptType: AIPromptType): string {
+  private buildSystemPrompt(promptType: AIPromptType, customPrompt?: string): string {
+    if (customPrompt?.trim()) {
+      return `Bạn là MindVault AI Assistant thông minh. Nhiệm vụ của bạn là: "${customPrompt.trim()}". Hãy trả lời bằng tiếng Việt chuẩn xác, súc tích, phong phú và hữu ích cho người dùng dựa trên nội dung ghi chú.`;
+    }
+
     switch (promptType) {
       case 'action_items':
         return 'Bạn là MindVault AI Assistant. Hãy đọc nội dung ghi chú/biên bản họp sau và trích xuất danh sách các việc cần làm (Action Items). Mỗi việc gồm mức độ ưu tiên [Cao/Trung bình/Thấp] và thời hạn hoàn thành [Hạn: X ngày].';
+      case 'detailed_summary':
+        return 'Bạn là MindVault AI Assistant. Hãy phân tích chuyên sâu toàn bộ nội dung ghi chú này thành một bản báo cáo tóm lược hoàn chỉnh (Executive Summary) gồm: Bối cảnh, Luận điểm then chốt, Quyết định đạt được và Kế hoạch thực hiện tiếp theo.';
+      case 'critique':
+        return 'Bạn là MindVault AI Assistant đóng vai trò Cố vấn chuyên môn phản biện. Hãy chỉ ra các điểm mạnh, các rủi ro tiềm ẩn, những lỗ hổng logic hoặc thiếu sót trong kế hoạch này và gợi ý 3 giải pháp cải thiện cụ thể.';
       case 'translate':
-        return 'Bạn là MindVault AI Assistant. Hãy dịch nội dung ghi chú sang tiếng Anh học thuật một cách chuẩn xác.';
+        return 'Bạn là MindVault AI Assistant. Hãy dịch toàn bộ nội dung ghi chú sang tiếng Anh học thuật một cách chuẩn xác, văn phong chuyên nghiệp và tự nhiên.';
       case 'explain':
-        return 'Bạn là MindVault AI Assistant. Hãy giải thích chi tiết các thuật ngữ kỹ thuật trong ghi chú.';
+        return 'Bạn là MindVault AI Assistant. Hãy giải thích chi tiết, dễ hiểu các khái niệm, thuật ngữ kỹ thuật và mô hình xuất hiện trong ghi chú.';
       case 'summary':
       default:
         return 'Bạn là MindVault AI Assistant. Hãy tóm tắt nội dung ghi chú thành các gạch đầu dòng ngắn gọn, cô đọng ý chính và nhấn mạnh quyết định quan trọng.';

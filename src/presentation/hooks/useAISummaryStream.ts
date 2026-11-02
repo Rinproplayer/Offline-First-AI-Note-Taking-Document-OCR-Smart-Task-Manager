@@ -31,10 +31,15 @@ export function useAISummaryStream() {
   } = useAIStore();
 
   /**
-   * Phát luồng tóm tắt ghi chú thành các gạch đầu dòng ngắn gọn
+   * Phát luồng xử lý AI (tóm tắt, phân tích, dịch thuật, phản biện hoặc câu hỏi tùy chọn)
    */
   const streamSummary = useCallback(
-    async (noteId: string, noteContent: string) => {
+    async (
+      noteId: string,
+      noteContent: string,
+      promptType: AIPromptType = 'summary',
+      customPrompt?: string
+    ) => {
       abortControllerRef.current = new AbortController();
       setStreaming(true);
       setStreamedContent('');
@@ -46,12 +51,16 @@ export function useAISummaryStream() {
           onToken: (token) => {
             appendToken(token);
           },
+          promptType,
+          customPrompt,
           autoSaveToNote: true
         });
 
         // Làm mới cache TanStack Query để cập nhật ngay trên giao diện
-        queryClient.invalidateQueries({ queryKey: ['note', noteId] });
-        queryClient.invalidateQueries({ queryKey: ['notes'] });
+        if (noteId && noteId !== 'new') {
+          queryClient.invalidateQueries({ queryKey: ['note', noteId] });
+          queryClient.invalidateQueries({ queryKey: ['notes'] });
+        }
         return result;
       } finally {
         setStreaming(false);
@@ -80,8 +89,10 @@ export function useAISummaryStream() {
         });
 
         // Tự động làm mới cache của cả Notes và Tasks
-        queryClient.invalidateQueries({ queryKey: ['note', noteId] });
-        queryClient.invalidateQueries({ queryKey: ['notes'] });
+        if (noteId && noteId !== 'new') {
+          queryClient.invalidateQueries({ queryKey: ['note', noteId] });
+          queryClient.invalidateQueries({ queryKey: ['notes'] });
+        }
         queryClient.invalidateQueries({ queryKey: ['tasks'] });
         queryClient.invalidateQueries({ queryKey: ['tasks', 'weekly-metrics'] });
         return result;
@@ -96,12 +107,17 @@ export function useAISummaryStream() {
    * Điều phối streaming dựa trên promptType được chọn
    */
   const startStream = useCallback(
-    async (noteId: string, noteContent: string, promptType: AIPromptType) => {
+    async (
+      noteId: string,
+      noteContent: string,
+      promptType: AIPromptType,
+      customPrompt?: string
+    ) => {
       if (promptType === 'action_items') {
         const res = await streamActionItems(noteId, noteContent);
         return res.summaryText;
       }
-      return streamSummary(noteId, noteContent);
+      return streamSummary(noteId, noteContent, promptType, customPrompt);
     },
     [streamSummary, streamActionItems]
   );
