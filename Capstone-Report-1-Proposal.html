@@ -2,14 +2,14 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Báo Cáo Đồ Án Capstone 1 - Nhóm SBTC</title>
+<title>[REPORT TEMPLATE 1] PROJECT PROPOSAL & INTERACTIVE WIREFRAME PROTOTYPE</title>
 <style>
   @page {
     size: A4;
-    margin: 18mm 16mm 18mm 16mm;
+    margin: 15mm 16mm 15mm 16mm;
     @bottom-center {
       content: "Trang " counter(page) " / " counter(pages);
-      font-size: 9pt;
+      font-size: 8.5pt;
       color: #64748b;
       font-family: 'Segoe UI', Arial, sans-serif;
     }
@@ -23,8 +23,8 @@
 
   body {
     font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
-    font-size: 10.5pt;
-    line-height: 1.55;
+    font-size: 10pt;
+    line-height: 1.5;
     color: #1e293b;
     background-color: #ffffff;
     margin: 0;
@@ -34,104 +34,72 @@
   /* Header Box */
   .header-card {
     border: 2px solid #2563eb;
-    border-radius: 8px;
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
-    margin-bottom: 22px;
+    border-radius: 6px;
+    padding: 14px 18px;
+    background: #f8fafc;
+    margin-bottom: 16px;
   }
 
-  .course-title {
-    font-size: 11pt;
-    font-weight: 700;
-    color: #2563eb;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-  }
-
-  .main-title {
-    font-size: 17pt;
+  .header-title {
+    font-size: 14pt;
     font-weight: 800;
     color: #0f172a;
+    margin: 0 0 6px 0;
     line-height: 1.3;
-    margin: 6px 0 8px 0;
   }
 
-  .sub-title {
-    font-size: 12pt;
-    font-weight: 600;
-    color: #475569;
-    margin-bottom: 12px;
+  .header-meta {
+    font-size: 9.5pt;
+    color: #334155;
+    margin: 3px 0;
   }
 
-  .meta-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
-  }
-
-  .badge {
-    background-color: #dbeafe;
-    color: #1d4ed8;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 9pt;
-    font-weight: 600;
-    display: inline-block;
-  }
-
-  .badge-team {
-    background-color: #fee2e2;
-    color: #b91c1c;
-  }
-
-  .badge-term {
-    background-color: #e0e7ff;
-    color: #4338ca;
+  .header-meta strong {
+    color: #0f172a;
   }
 
   /* Headings */
   h2 {
-    font-size: 13pt;
+    font-size: 11.5pt;
     font-weight: 800;
     color: #0f172a;
-    border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 6px;
-    margin-top: 24px;
-    margin-bottom: 12px;
+    border-bottom: 1.5px solid #cbd5e1;
+    padding-bottom: 4px;
+    margin-top: 18px;
+    margin-bottom: 10px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
   }
 
   h3 {
-    font-size: 11pt;
+    font-size: 10.5pt;
     font-weight: 700;
-    color: #1e40af;
-    margin-top: 14px;
-    margin-bottom: 8px;
+    color: #1d4ed8;
+    margin-top: 12px;
+    margin-bottom: 6px;
   }
 
   p {
-    margin: 6px 0;
+    margin: 5px 0;
     text-align: justify;
   }
 
-  ul, ol {
-    margin: 6px 0 10px 20px;
+  ul {
+    margin: 4px 0 8px 18px;
     padding: 0;
   }
 
   li {
     margin-bottom: 4px;
+    text-align: justify;
   }
 
   /* Tables */
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 12px 0 16px 0;
-    font-size: 9.5pt;
+    margin: 10px 0 14px 0;
+    font-size: 9pt;
     page-break-inside: avoid;
   }
 
@@ -140,12 +108,12 @@
     color: #ffffff;
     font-weight: 700;
     text-align: left;
-    padding: 8px 10px;
+    padding: 7px 9px;
     border: 1px solid #1e3a8a;
   }
 
   td {
-    padding: 7px 10px;
+    padding: 6px 9px;
     border: 1px solid #cbd5e1;
     vertical-align: top;
   }
@@ -164,7 +132,7 @@
     padding: 2px 6px;
     border-radius: 4px;
     font-weight: 700;
-    font-size: 8.5pt;
+    font-size: 8pt;
     display: inline-block;
   }
 
@@ -174,392 +142,139 @@
     padding: 2px 6px;
     border-radius: 4px;
     font-weight: 700;
-    font-size: 8.5pt;
+    font-size: 8pt;
     display: inline-block;
   }
 
-  /* Callout Boxes */
-  .callout {
-    background-color: #f1f5f9;
-    border-left: 4px solid #3b82f6;
-    padding: 10px 14px;
-    border-radius: 0 6px 6px 0;
-    margin: 12px 0;
-    font-size: 10pt;
+  /* Links section */
+  .link-list {
+    list-style-type: none;
+    margin: 6px 0 0 0;
+    padding: 0;
   }
 
-  .callout-highlight {
-    background-color: #ecfdf5;
-    border-left-color: #10b981;
+  .link-list li {
+    margin-bottom: 5px;
+    font-size: 9.5pt;
   }
 
-  .callout-title {
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 4px;
-  }
-
-  /* Link Card Grid */
-  .link-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin: 10px 0 16px 0;
-    page-break-inside: avoid;
-  }
-
-  .link-item {
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    padding: 8px 12px;
-    background-color: #f8fafc;
-    text-decoration: none;
-    color: #1e293b;
-    display: block;
-  }
-
-  .link-item:hover {
-    border-color: #2563eb;
-    background-color: #eff6ff;
-  }
-
-  .link-label {
-    font-weight: 700;
-    font-size: 9pt;
+  .link-list a {
     color: #2563eb;
-    margin-bottom: 2px;
-  }
-
-  .link-url {
-    font-size: 8pt;
-    color: #64748b;
+    text-decoration: none;
     word-break: break-all;
   }
 
-  /* Code / Architecture Box */
-  pre {
-    background-color: #0f172a;
-    color: #f8fafc;
-    padding: 10px 14px;
-    border-radius: 6px;
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 8.5pt;
-    line-height: 1.45;
-    overflow-x: hidden;
-    margin: 10px 0;
-    page-break-inside: avoid;
+  .link-list a:hover {
+    text-decoration: underline;
   }
 
-  .page-break {
-    page-break-before: always;
+  hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 14px 0;
   }
 </style>
 </head>
 <body>
 
-  <!-- HEADER BANNER -->
+  <!-- HEADER -->
   <div class="header-card">
-    <div class="course-title">Môn học: Phát triển Ứng dụng Đa nền tảng (Cross-Platform Mobile Development)</div>
-    <div class="main-title">BÁO CÁO ĐỒ ÁN CAPSTONE - GIAI ĐOẠN 1<br>(PROJECT PROPOSAL & INTERACTIVE WIREFRAME PROTOTYPE)</div>
-    <div class="sub-title">Đề tài: MindVault - Offline-First AI Note-Taking, Document OCR & Smart Task Manager</div>
-    <p style="margin: 0; font-size: 9.5pt; color: #475569;">
-      <strong>Tên tiếng Việt:</strong> Ứng dụng Sổ tay Ghi chú Thông minh & Quản lý Công việc Tích hợp AI (OCR & Trợ lý LLM)
-    </p>
-    <div class="meta-badges">
-      <span class="badge badge-team">Nhóm: SBTC</span>
-      <span class="badge badge-term">Học kỳ 1 (2026 - 2027)</span>
-      <span class="badge">Milestone 1 • Tuần 4</span>
-      <span class="badge" style="background:#dcfce7; color:#15803d;">Status: Verified Release APK</span>
+    <div class="header-title"># [REPORT TEMPLATE 1] PROJECT PROPOSAL & INTERACTIVE WIREFRAME PROTOTYPE</div>
+    <div class="header-meta"><strong>Course:</strong> Cross-Platform Mobile App Development</div>
+    <div class="header-meta">
+      <strong>Project Title:</strong> Ứng dụng Sổ tay Ghi chú Thông minh & Quản lý Công việc Tích hợp AI (OCR & Trợ lý LLM) - MindVault: Offline-First AI Note-Taking, Document OCR & Smart Task Manager
+    </div>
+    <div class="header-meta">
+      <strong>Team Name:</strong> SBTC (Nguyễn Trung Nguyên - 23IT.B143 [Trưởng nhóm], Võ Thành Nam - 23IT.B135, Võ Tiến Phúc - 23IT.B168, Đoàn Kim Oanh - 23IT.B159) • <strong>Academic Term:</strong> Semester 1 (2026 - 2027) • <strong>Deadline:</strong> Week 4
     </div>
   </div>
 
-  <!-- THÀNH VIÊN NHÓM -->
-  <h2>1. THÀNH VIÊN NHÓM THỰC HIỆN (SBTC TEAM)</h2>
-  <table>
-    <thead>
-      <tr>
-        <th class="text-center" style="width: 8%;">STT</th>
-        <th style="width: 25%;">Họ và Tên</th>
-        <th class="text-center" style="width: 16%;">Mã sinh viên</th>
-        <th class="text-center" style="width: 16%;">Vai trò</th>
-        <th style="width: 35%;">Phụ trách chính trong dự án</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="text-center"><strong>1</strong></td>
-        <td><strong>Nguyễn Trung Nguyên</strong></td>
-        <td class="text-center"><strong>23IT.B143</strong></td>
-        <td class="text-center"><strong>Trưởng nhóm</strong></td>
-        <td>Kiến trúc Clean Architecture, Quản lý dự án, Data Layer (WatermelonDB SQLite & Supabase Sync Engine), Đóng gói APK Release.</td>
-      </tr>
-      <tr>
-        <td class="text-center">2</td>
-        <td>Võ Thành Nam</td>
-        <td class="text-center">23IT.B135</td>
-        <td class="text-center">Thành viên</td>
-        <td>AI Engine (Google ML Kit OCR On-Device, Streaming LLM SSE Client), Tích hợp Use Cases nghiệp vụ & AI Benchmarks.</td>
-      </tr>
-      <tr>
-        <td class="text-center">3</td>
-        <td>Võ Tiến Phúc</td>
-        <td class="text-center">23IT.B168</td>
-        <td class="text-center">Thành viên</td>
-        <td>Presentation Layer (Expo Router, UI Screens, Quản lý State Zustand, Lịch tuần động, Chế độ Sáng/Tối Light & Dark Mode).</td>
-      </tr>
-      <tr>
-        <td class="text-center">4</td>
-        <td>Đoàn Kim Oanh</td>
-        <td class="text-center">23IT.B159</td>
-        <td class="text-center">Thành viên</td>
-        <td>Thiết kế UI/UX Figma Prototype, Design System Material 3, Animation kéo vuốt Reanimated 60 FPS, Video Demo & Hồ sơ báo cáo.</td>
-      </tr>
-    </tbody>
-  </table>
+  <hr>
 
-  <!-- LIÊN KẾT TÀI NGUYÊN DỰ ÁN -->
-  <h2>2. DANH MỤC LIÊN KẾT TÀI NGUYÊN (PROJECT DELIVERABLES)</h2>
-  <div class="link-grid">
-    <a class="link-item" href="https://www.figma.com/design/p8UwKE8kOcRg4QDKPqNA8r/Untitled?node-id=0-1&t=TYGHktn0myelPVjj-1" target="_blank">
-      <div class="link-label">🎨 Bản thiết kế & Interactive Prototype (Figma)</div>
-      <div class="link-url">https://www.figma.com/design/p8UwKE8kOcRg4QDKPqNA8r/...</div>
-    </a>
-    <a class="link-item" href="https://github.com/Rinproplayer/Offline-First-AI-Note-Taking-Document-OCR-Smart-Task-Manager" target="_blank">
-      <div class="link-label">💻 Mã nguồn dự án (GitHub Repository)</div>
-      <div class="link-url">https://github.com/Rinproplayer/Offline-First-AI-Note-Taking...</div>
-    </a>
-    <a class="link-item" href="https://drive.google.com/drive/folders/15ujP5yjcgX5Go10XxvGvbO22fO8B4I_J?usp=drive_link" target="_blank">
-      <div class="link-label">📄 Thư mục Báo cáo Kỹ thuật PDF (Google Drive)</div>
-      <div class="link-url">https://drive.google.com/drive/folders/15ujP5yjcgX5Go10XxvGvbO22fO8B4I_J</div>
-    </a>
-    <a class="link-item" href="https://drive.google.com/drive/folders/1tKbgBpehEQRkYTJ3eQTNJ2Mkd34_CL0l?usp=drive_link" target="_blank">
-      <div class="link-label">📦 Thư mục Tải bộ cài đặt Release APK (Google Drive)</div>
-      <div class="link-url">https://drive.google.com/drive/folders/1tKbgBpehEQRkYTJ3eQTNJ2Mkd34_CL0l</div>
-    </a>
-  </div>
-  <div style="margin-bottom: 14px;">
-    <a class="link-item" href="https://drive.google.com/drive/folders/1TaP7tMudeglNH6nbAGw8hy6UXZYk8KG5?usp=drive_link" target="_blank">
-      <div class="link-label">🎥 Thư mục Video Demo trải nghiệm thực tế (Google Drive)</div>
-      <div class="link-url">https://drive.google.com/drive/folders/1TaP7tMudeglNH6nbAGw8hy6UXZYk8KG5</div>
-    </a>
-  </div>
-
-  <!-- BỐI CẢNH & BÀI TOÁN -->
-  <h2>3. BỐI CẢNH, ĐỘNG LỰC DỰ ÁN & BÀI TOÁN THỰC TẾ</h2>
-  <h3>3.1. Phân tích thực trạng và khoảng trống công nghệ</h3>
-  <p>
-    Trong môi trường giáo dục đại học và làm việc số hóa hiện nay, sinh viên và chuyên viên văn phòng luôn phải xử lý thông tin với tần suất cao từ nhiều định dạng: tài liệu giấy in, slide bài giảng máy chiếu, bảng ghi chú cuộc họp. Tuy nhiên, các giải pháp phần mềm hiện hành bộc lộ 3 nhược điểm chí mạng:
-  </p>
+  <!-- SECTION 1 -->
+  <h2>1. PROJECT MOTIVATION & PROBLEM STATEMENT</h2>
+  
+  <h3>1.1. Context & Practical Problem Space</h3>
   <ul>
-    <li><strong>Sự phụ thuộc tuyệt đối vào mạng Internet (Network Bottleneck):</strong> Hầu hết ứng dụng ghi chú đám mây phổ biến (Notion, Google Keep, Evernote) hoạt động theo mô hình Cloud-first. Khi người dùng di chuyển vào giảng đường tầng hầm, xe buýt hay khu vực WiFi yếu, ứng dụng lập tức bị nghẽn, không tải được dữ liệu hoặc làm mất đoạn nội dung đang soạn thảo dở dang.</li>
-    <li><strong>Độ trễ và rủi ro quyền riêng tư khi số hóa văn bản (OCR Privacy & Latency):</strong> Các dịch vụ OCR trên thị trường thường đẩy ảnh lên máy chủ đám mây của bên thứ ba để xử lý, gây trễ từ 3 đến 5 giây, tốn dữ liệu di động 4G/5G và đặc biệt tiềm ẩn nguy cơ lộ lọt tài liệu mật, hợp đồng nội bộ.</li>
-    <li><strong>Sự đứt gãy giữa "Ghi chép" và "Hành động" (Notes-to-Tasks Disconnection):</strong> Sau khi ghi chép một buổi họp hay bài giảng dài, người dùng phải tự đọc dò từng dòng để nhặt ra to-do items và deadline. Việc thao tác thủ công này khiến 35% công việc và hạn chót quan trọng bị bỏ quên.</li>
+    <li>Sinh viên và chuyên viên văn phòng thường xuyên gặp khó khăn trong việc số hóa giáo trình, tài liệu in hay bảng viết trong các buổi học/họp. Việc gõ lại thủ công gây tốn nhiều thời gian và dễ bỏ sót các đầu việc (action items), deadline quan trọng.</li>
+    <li>Các ứng dụng ghi chú đám mây phổ biến (Notion, Google Keep) phụ thuộc hoàn toàn vào kết nối Internet liên tục, dễ gây gián đoạn công việc khi mất mạng ở giảng đường hoặc khu vực sóng yếu.</li>
+    <li><strong>MindVault</strong> giải quyết bài toán trên bằng mô hình <strong>Offline-First</strong>, lưu trữ dữ liệu tại máy (WatermelonDB SQLite), tích hợp nhận dạng văn bản tiếng Việt on-device tốc độ cao qua <strong>Google ML Kit</strong> và trợ lý <strong>Streaming AI</strong> tự động phân tích ghi chú thành danh sách nhiệm vụ cần làm.</li>
   </ul>
 
-  <div class="callout callout-highlight">
-    <div class="callout-title">💡 Giải pháp đột phá của MindVault:</div>
-    Ứng dụng tiên phong tiếp cận theo triết lý <strong>Offline-First</strong>: toàn bộ dữ liệu ghi chú và nhiệm vụ được lưu trữ trực tiếp trên thiết bị bằng <strong>WatermelonDB (SQLite Engine)</strong>. Tích hợp trực tiếp <strong>Google ML Kit OCR On-Device</strong> nhận diện tiếng Việt tốc độ cực cao dưới 250ms hoàn toàn ngoại tuyến. Khi có mạng, dữ liệu tự động đồng bộ hai chiều an toàn với cơ sở dữ liệu Supabase PostgreSQL thông qua Row-Level Security (RLS).
-  </div>
+  <h3>1.2. Target User Personas</h3>
+  <ul>
+    <li>
+      <strong>Primary Persona:</strong> Nguyễn Hoàng Long (21 tuổi, sinh viên Công nghệ thông tin). 
+      <em>Mục tiêu:</em> Chụp ảnh bài giảng trên bảng, trích xuất văn bản tiếng Việt nhanh tại lớp học ngoại tuyến; tự động bóc tách hạn nộp bài tập lớn. 
+      <em>Điểm đau:</em> Mạng WiFi giảng đường chập chờn, mất nhiều thời gian chép lại bài giảng, hay quên deadline bài tập.
+    </li>
+    <li>
+      <strong>Typical User Story:</strong> Long mở MindVault ở chế độ offline, chụp bảng bài tập bằng camera &rarr; Google ML Kit nhận diện văn bản on-device dưới 150ms &rarr; Bấm "Trích việc", AI streaming tự động phân tích và tạo nhiệm vụ có hạn chót vào tab "Hôm nay" &rarr; Khi về nhà có WiFi, ứng dụng ngầm đồng bộ hai chiều an toàn với cơ sở dữ liệu Supabase PostgreSQL (RLS).
+    </li>
+  </ul>
 
-  <!-- USER PERSONAS -->
-  <h3>3.2. Chân dung Người dùng Mục tiêu (User Personas)</h3>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
-    <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px; background: #fafafa;">
-      <strong style="color: #1e3a8a;">Persona 1: Sinh viên Đại học (Primary User)</strong>
-      <ul style="margin: 6px 0 0 16px; font-size: 9pt;">
-        <li><strong>Đại diện:</strong> Nguyễn Hoàng Long (21 tuổi) - SV Công nghệ.</li>
-        <li><strong>Mục tiêu:</strong> Chụp slide bài giảng, giáo trình in, nhận diện văn bản tiếng Việt tức thì tại giảng đường; tự động bóc tách hạn nộp bài tập lớn.</li>
-        <li><strong>Điểm đau:</strong> Mạng WiFi trường học chập chờn; mất thời gian gõ lại công thức/văn bản từ bảng; hay quên hạn chót bài tập.</li>
-      </ul>
-    </div>
-    <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px; background: #fafafa;">
-      <strong style="color: #1e3a8a;">Persona 2: Chuyên viên Phân tích / Quản lý (Secondary)</strong>
-      <ul style="margin: 6px 0 0 16px; font-size: 9pt;">
-        <li><strong>Đại diện:</strong> Lê Thu Trang (27 tuổi) - Business Analyst.</li>
-        <li><strong>Mục tiêu:</strong> Quét biên bản họp giấy sau sprint; bảo mật dữ liệu tuyệt đối không đẩy ảnh lên máy chủ ngoài; quản lý việc thông minh.</li>
-        <li><strong>Điểm đau:</strong> Lo rò rỉ thông tin dự án; cần chế độ Dark Mode làm việc ban đêm; cần thao tác kéo vuốt xóa nhanh chóng.</li>
-      </ul>
-    </div>
-  </div>
+  <hr>
 
-  <div class="page-break"></div>
-
-  <!-- PHẠM VI HỆ THỐNG & YÊU CẦU CHỨC NĂNG -->
-  <h2>4. PHẠM VI HỆ THỐNG & BẢNG ĐẶC TẢ YÊU CẦU CHỨC NĂNG</h2>
+  <!-- SECTION 2 -->
+  <h2>2. SYSTEM SCOPE & FUNCTIONAL SPECIFICATIONS</h2>
   <table>
     <thead>
       <tr>
         <th class="text-center" style="width: 5%;">#</th>
-        <th style="width: 22%;">Phân hệ chức năng</th>
-        <th style="width: 25%;">Chức năng chi tiết (Concrete Feature)</th>
-        <th class="text-center" style="width: 13%;">Mức ưu tiên</th>
-        <th style="width: 35%;">Logic nghiệp vụ & Phạm vi kỹ thuật</th>
+        <th style="width: 23%;">Feature Category</th>
+        <th style="width: 25%;">Concrete Feature</th>
+        <th class="text-center" style="width: 14%;">Priority</th>
+        <th style="width: 33%;">Business Logic & Scope</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td class="text-center">1</td>
-        <td><strong>Xác thực & Bảo mật (Auth & Security)</strong></td>
-        <td>Đăng nhập Supabase Auth & Khách ẩn danh (Guest Session).</td>
+        <td><strong>Authentication & Profile</strong></td>
+        <td>Supabase Auth (Email / OAuth), Khách ẩn danh (Guest Session)</td>
         <td class="text-center"><span class="priority-must">Must-Have</span></td>
-        <td>Bảo vệ quyền riêng tư dữ liệu ở mức database bằng PostgreSQL Row-Level Security (RLS). Hỗ trợ chế độ Guest dùng ngay không bắt buộc đăng nhập.</td>
+        <td>Bảo vệ và cô lập dữ liệu người dùng ở mức CSDL với PostgreSQL Row-Level Security (RLS).</td>
       </tr>
       <tr>
         <td class="text-center">2</td>
-        <td><strong>Quản lý Ghi chú (Core Note System)</strong></td>
-        <td>Soạn thảo Rich Text, phân loại danh mục, tìm kiếm full-text, vuốt xóa hiện đại.</td>
+        <td><strong>Core Business Logic</strong></td>
+        <td>Quản lý Ghi chú & Nhiệm vụ (Lịch tuần động, Vuốt xóa 60 FPS)</td>
         <td class="text-center"><span class="priority-must">Must-Have</span></td>
-        <td>Tạo mới trống sạch, lưu tức thì trên WatermelonDB SQLite cục bộ. Cử chỉ vuốt sang trái hiện nút đỏ xóa mượt mà với Reanimated 4 đạt 60 FPS.</td>
+        <td>Soạn thảo rich text, tạo mới trống sạch, lọc việc theo ngày (T2–CN, Hôm nay, Sắp tới, Từ AI), animation kéo đỏ xóa mượt mà với Reanimated.</td>
       </tr>
       <tr>
         <td class="text-center">3</td>
-        <td><strong>Quét tài liệu AI (On-Device OCR)</strong></td>
-        <td>Quét văn bản từ Camera / Thư viện ảnh, hỗ trợ 4 chế độ tài liệu.</td>
+        <td><strong>Artificial Intelligence (AI)</strong></td>
+        <td>On-Device OCR tiếng Việt & Trợ lý Streaming LLM (SSE)</td>
         <td class="text-center"><span class="priority-must">Must-Have</span></td>
-        <td>Tích hợp Google ML Kit Text Recognition chạy on-device 100%. Nhận dạng tiếng Việt chính xác cao với độ trễ suy luận &lt; 250ms, không cần Internet.</td>
+        <td>Xử lý OCR hoàn toàn ngoại tuyến qua Google ML Kit (&lt; 250ms), trợ lý AI truyền phát token thời gian thực để tóm tắt và trích xuất việc cần làm liên kết với ghi chú (AI Note Link).</td>
       </tr>
       <tr>
         <td class="text-center">4</td>
-        <td><strong>Trợ lý Trí tuệ nhân tạo (AI Assistant)</strong></td>
-        <td>Tóm tắt thông minh, tự động phân tích và trích xuất việc cần làm (Action Items).</td>
-        <td class="text-center"><span class="priority-must">Must-Have</span></td>
-        <td>Truyền phát tokens thời gian thực qua Server-Sent Events (SSE). Tự động tạo Task liên kết nguồn trực tiếp với Ghi chú (AI Note Link).</td>
-      </tr>
-      <tr>
-        <td class="text-center">5</td>
-        <td><strong>Quản lý Nhiệm vụ (Task Tracker)</strong></td>
-        <td>Lịch tuần động (T2 - CN), phân loại Hôm nay, Sắp tới, Việc từ AI, vuốt để xóa.</td>
-        <td class="text-center"><span class="priority-must">Must-Have</span></td>
-        <td>Điều hướng ngày trực quan, tính toán thời gian hạn chót còn lại, hỗ trợ thao tác kéo vuốt xóa màu đỏ đồng nhất với phân hệ Ghi chú.</td>
-      </tr>
-      <tr>
-        <td class="text-center">6</td>
-        <td><strong>Đồng bộ Ngoại tuyến (Offline-First)</strong></td>
-        <td>Kiến trúc Local-First, tự động đồng bộ hai chiều (Bi-directional Sync) khi có mạng.</td>
-        <td class="text-center"><span class="priority-must">Must-Have</span></td>
-        <td>WatermelonDB làm Single Source of Truth trên máy khách. Sync Service đồng bộ với Supabase PostgreSQL qua giải thuật Last-Write-Wins có gắn nhãn Timestamp.</td>
-      </tr>
-      <tr>
-        <td class="text-center">7</td>
-        <td><strong>Giao diện Người dùng (UI/UX)</strong></td>
-        <td>Hỗ trợ Dark & Light Mode hoàn chỉnh, chuẩn Material 3 & Apple HIG.</td>
+        <td><strong>Offline Resilience</strong></td>
+        <td>Lưu trữ cục bộ & Tự động đồng bộ hai chiều (Bi-directional Sync)</td>
         <td class="text-center"><span class="priority-should">Should-Have</span></td>
-        <td>Quản lý Theme toàn cục qua Zustand Store (useThemeStore), chuyển đổi tức thì không giật màn hình, đảm bảo độ tương phản màu chuẩn WCAG AAA.</td>
+        <td>Vận hành độc lập không cần mạng với WatermelonDB (SQLite) + MMKV cache, tự động đồng bộ hai chiều lên Supabase khi phát hiện có mạng.</td>
       </tr>
     </tbody>
   </table>
 
-  <!-- KIẾN TRÚC HỆ THỐNG -->
-  <h2>5. KIẾN TRÚC HỆ THỐNG (STRICT 3-LAYER CLEAN ARCHITECTURE)</h2>
-  <p>
-    Dự án MindVault tuân thủ nghiêm ngặt nguyên lý <strong>3-Layer Clean Architecture</strong> nhằm đảm bảo tính độc lập, khả năng mở rộng và dễ bảo trì:
-  </p>
-  <pre>
-MINDVAULT ARCHITECTURE OVERVIEW:
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ 1. PRESENTATION LAYER (src/presentation)                                    │
-│    • Screens: HomeScreen, NoteEditorScreen, OCRScannerScreen, TaskTracker   │
-│    • State: Zustand (useThemeStore, useAuthStore, useFilterStore)           │
-│    • Query: TanStack Query (useNotesQuery, useTasksQuery, useOCRMutation)   │
-│    • UI/UX: Material 3 Tokens, FlashList 60fps, Reanimated 4 Swipe-to-Delete│
-├─────────────────────────────────────────────────────────────────────────────┤
-│ 2. DOMAIN LAYER (src/domain) - PURE TYPESCRIPT (0 EXTERNAL SDK / UI IMPORTS)│
-│    • Entities: Note.ts, Task.ts                                             │
-│    • Repositories Interfaces: INoteRepository, ITaskRepository, IAIService  │
-│    • Use Cases: ExtractTextOCRUseCase, StreamNoteSummaryUseCase, SyncData   │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ 3. DATA LAYER (src/data)                                                    │
-│    • Local DB: WatermelonDB SQLite Database, Schema v1, Lazy-loading Models │
-│    • High-Speed Cache: react-native-mmkv (Settings & Session Key-Value)     │
-│    • Remote BaaS: Supabase Client, Bi-directional Sync Protocol with RLS    │
-│    • On-Device AI: Google ML Kit Text Recognition Latin/Vietnamese Native   │
-│    • Cloud AI: Streaming LLM Client (Server-Sent Events Protocol)           │
-└─────────────────────────────────────────────────────────────────────────────┘
-  </pre>
+  <hr>
 
-  <!-- BẢNG TECH STACK -->
-  <h2>6. BẢNG CÔNG NGHỆ LỰA CHỌN & LÝ DO KỸ THUẬT (TECH STACK BREAKDOWN)</h2>
-  <table>
-    <thead>
-      <tr>
-        <th style="width: 20%;">Thành phần</th>
-        <th style="width: 25%;">Công nghệ lựa chọn</th>
-        <th class="text-center" style="width: 12%;">Phiên bản</th>
-        <th style="width: 43%;">Lý do kỹ thuật & Lợi thế vượt trội</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>Core Mobile App</strong></td>
-        <td><strong>React Native / Expo</strong></td>
-        <td class="text-center">0.88.1 / SDK 58</td>
-        <td>Mã nguồn TypeScript đa nền tảng tối ưu, tích hợp Hermes Engine với bytecode biên dịch trước giúp giảm 40% thời gian khởi động app.</td>
-      </tr>
-      <tr>
-        <td><strong>Local Database</strong></td>
-        <td><strong>WatermelonDB (SQLite)</strong></td>
-        <td class="text-center">0.27.1</td>
-        <td>Tối ưu chuyên sâu cho ứng dụng React Native quy mô lớn; kiến trúc lazy-loading chỉ nạp dữ liệu khi cần, xử lý mượt mà hàng vạn ghi chú mà không tốn RAM.</td>
-      </tr>
-      <tr>
-        <td><strong>High-Speed Cache</strong></td>
-        <td><strong>react-native-mmkv</strong></td>
-        <td class="text-center">3.1.0</td>
-        <td>Bộ nhớ đệm key-value viết bằng C++ JNI, tốc độ đọc/ghi dữ liệu cài đặt người dùng nhanh gấp 30 lần AsyncStorage truyền thống.</td>
-      </tr>
-      <tr>
-        <td><strong>Cloud Database & Auth</strong></td>
-        <td><strong>Supabase (PostgreSQL)</strong></td>
-        <td class="text-center">2.48.1</td>
-        <td>PostgreSQL mạnh mẽ với tính năng Row-Level Security (RLS) bảo vệ từng bản ghi người dùng, hỗ trợ Realtime Subscription và REST API đồng bộ hai chiều.</td>
-      </tr>
-      <tr>
-        <td><strong>On-Device AI OCR</strong></td>
-        <td><strong>Google ML Kit Vision</strong></td>
-        <td class="text-center">1.4.0</td>
-        <td>Mô hình thị giác máy tính chạy trực tiếp trên thiết bị (on-device), nhận dạng chữ tiếng Việt/Latin cực nhanh &lt; 250ms, không phụ thuộc đường truyền mạng.</td>
-      </tr>
-      <tr>
-        <td><strong>Animation & Gestures</strong></td>
-        <td><strong>Reanimated 4 + Gesture Handler</strong></td>
-        <td class="text-center">4.7.1 / 3.3.0</td>
-        <td>Xử lý toàn bộ logic animation và thao tác vuốt kéo trực tiếp trên UI thread (Native Thread), cam kết tỷ lệ khung hình 60 FPS mượt mà.</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <!-- PHÂN CÔNG CÔNG VIỆC -->
-  <h2>7. PHÂN CÔNG NHIỆM VỤ CHI TIẾT THEO THÀNH VIÊN (WORK BREAKDOWN STRUCTURE)</h2>
+  <!-- SECTION 3 -->
+  <h2>3. TECH STACK & INITIAL ARCHITECTURE</h2>
   <ul>
-    <li><strong>Nguyễn Trung Nguyên (Trưởng nhóm - 23IT.B143):</strong> Quản lý tiến độ tổng thể; thiết kế cấu trúc CSDL SQLite WatermelonDB và PostgreSQL RLS trên Supabase; lập trình dịch vụ Đồng bộ hai chiều (Bi-directional Sync Service); duy trì tính toàn vẹn Clean Architecture (10/10 files domain đạt chuẩn); cấu hình và đóng gói thành công file Release APK (MindVault.apk).</li>
-    <li><strong>Võ Thành Nam (Thành viên - 23IT.B135):</strong> Tích hợp bộ công cụ Google ML Kit Text Recognition on-device cho tiếng Việt; thiết lập Streaming LLM SSE Client; lập trình các Use Cases cốt lõi (ExtractTextOCRUseCase, StreamNoteSummaryUseCase, SyncDataUseCase); đo đạc benchmark hiệu năng AI.</li>
-    <li><strong>Võ Tiến Phúc (Thành viên - 23IT.B168):</strong> Xây dựng các màn hình ứng dụng trên nền Expo Router; quản lý toàn bộ Zustand Stores (useThemeStore, useAuthStore, useFilterStore, useSyncStore); phát triển bộ lọc lịch tuần động (Dynamic Week Calendar); tối ưu hóa giao diện Dark Mode và Light Mode.</li>
-    <li><strong>Đoàn Kim Oanh (Thành viên - 23IT.B159):</strong> Thiết kế toàn bộ bản vẽ Wireframe và Interactive Prototype trên Figma tuân thủ Design System Material 3; lập trình hoạt ảnh kéo vuốt xóa màu đỏ 60 FPS; xây dựng giao diện Viewfinder Camera; biên tập Video Demo thực tế và tổng hợp báo cáo kỹ thuật.</li>
+    <li><strong>Framework:</strong> React Native (Expo SDK 58, TypeScript, Strict 3-Layer Clean Architecture) &bull; <strong>State Management:</strong> Zustand & TanStack Query</li>
+    <li><strong>Backend:</strong> Supabase (PostgreSQL, Row-Level Security) &bull; <strong>AI Engine:</strong> Google ML Kit (On-Device Text Recognition) & Streaming LLM (SSE Client)</li>
   </ul>
 
-  <!-- KẾT QUẢ ĐẠT ĐƯỢC -->
-  <h2>8. KẾT QUẢ ĐẠT ĐƯỢC & MINH CHỨNG TẠI MILESTONE 1</h2>
-  <div class="callout callout-highlight">
-    <div class="callout-title">✅ Nghiệm thu sản phẩm hoàn tất:</div>
-    <ol style="margin: 4px 0 0 16px; font-size: 9.5pt;">
-      <li><strong>Bản vẽ Figma hoàn thiện:</strong> 100% màn hình và luồng thao tác tương tác (Ghi chú, Nhiệm vụ, Camera OCR, Trợ lý AI, Cài đặt theme) đã được hoàn thành trên Figma.</li>
-      <li><strong>Mã nguồn chuẩn Clean Architecture:</strong> Đạt tiêu chuẩn kiểm tra kiến trúc nghiêm ngặt (0 vi phạm tại src/domain/).</li>
-      <li><strong>Bản cài đặt Release APK thực tế:</strong> Đã biên dịch và ký số thành công file <code>MindVault.apk</code> (153.5 MB, hỗ trợ cả 4 kiến trúc chip), sẵn sàng cài đặt và chạy thử nghiệm mượt mà trên các thiết bị Android vật lý.</li>
-    </ol>
-  </div>
-
-  <div style="margin-top: 30px; display: flex; justify-content: space-between; page-break-inside: avoid;">
-    <div style="text-align: center; width: 45%;">
-      <p style="margin: 0; font-size: 9pt; color: #64748b;">Xác nhận bởi Giáo viên hướng dẫn</p>
-      <div style="height: 60px;"></div>
-      <p style="margin: 0; font-weight: 700; color: #475569;">(Ký và ghi rõ họ tên)</p>
-    </div>
-    <div style="text-align: center; width: 45%;">
-      <p style="margin: 0; font-size: 9pt; color: #64748b;">Đại diện nhóm thực hiện (SBTC)</p>
-      <div style="height: 60px;"></div>
-      <p style="margin: 0; font-weight: 700; color: #1e3a8a;">Nguyễn Trung Nguyên (Trưởng nhóm)</p>
-    </div>
-  </div>
+  <ul class="link-list">
+    <li><strong>🔗 Figma Prototype URL:</strong> <a href="https://www.figma.com/design/p8UwKE8kOcRg4QDKPqNA8r/Untitled?node-id=0-1&t=TYGHktn0myelPVjj-1" target="_blank">https://www.figma.com/design/p8UwKE8kOcRg4QDKPqNA8r/Untitled?node-id=0-1&t=TYGHktn0myelPVjj-1</a></li>
+    <li><strong>💻 GitHub Repository:</strong> <a href="https://github.com/Rinproplayer/Offline-First-AI-Note-Taking-Document-OCR-Smart-Task-Manager" target="_blank">https://github.com/Rinproplayer/Offline-First-AI-Note-Taking-Document-OCR-Smart-Task-Manager</a></li>
+    <li><strong>📄 Báo cáo PDF (Google Drive):</strong> <a href="https://drive.google.com/drive/folders/15ujP5yjcgX5Go10XxvGvbO22fO8B4I_J?usp=drive_link" target="_blank">https://drive.google.com/drive/folders/15ujP5yjcgX5Go10XxvGvbO22fO8B4I_J?usp=drive_link</a></li>
+    <li><strong>📦 Tải APK (Google Drive):</strong> <a href="https://drive.google.com/drive/folders/1tKbgBpehEQRkYTJ3eQTNJ2Mkd34_CL0l?usp=drive_link" target="_blank">https://drive.google.com/drive/folders/1tKbgBpehEQRkYTJ3eQTNJ2Mkd34_CL0l?usp=drive_link</a></li>
+    <li><strong>🎥 Video Demo (Google Drive):</strong> <a href="https://drive.google.com/drive/folders/1TaP7tMudeglNH6nbAGw8hy6UXZYk8KG5?usp=drive_link" target="_blank">https://drive.google.com/drive/folders/1TaP7tMudeglNH6nbAGw8hy6UXZYk8KG5?usp=drive_link</a></li>
+  </ul>
 
 </body>
 </html>
