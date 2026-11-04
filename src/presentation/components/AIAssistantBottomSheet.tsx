@@ -7,6 +7,8 @@ import {
   Pressable,
   ScrollView,
   ActivityIndicator,
+  TextInput,
+  KeyboardAvoidingView,
   Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,11 +29,20 @@ interface ActionItem {
   selected: boolean;
 }
 
+const PROMPT_PRESETS: { type: AIPromptType; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+  { type: 'summary', label: 'Tóm tắt', icon: 'document-text-outline' },
+  { type: 'action_items', label: 'Trích việc', icon: 'checkbox-outline' },
+  { type: 'translate', label: 'Dịch thuật', icon: 'language-outline' },
+  { type: 'explain', label: 'Giải thích', icon: 'bulb-outline' },
+  { type: 'critique', label: 'Phản biện', icon: 'analytics-outline' }
+];
+
 /**
- * Bottom Sheet Trợ lý AI - Thiết kế Tối giản
- * - Chỉ hiển thị phần chữ tóm tắt đang chạy streaming.
- * - Danh sách checkbox Action Items bóc tách được.
- * - 1 nút bấm duy nhất: "Thêm vào việc cần làm".
+ * Bottom Sheet Trợ lý AI - Thiết kế Tối giản & Mạnh mẽ
+ * - Hỗ trợ đầy đủ các tính năng: Tóm tắt, Trích việc, Dịch thuật, Giải thích, Phản biện.
+ * - Ô nhập câu hỏi tùy ý người dùng ("Hỏi AI bất kỳ điều gì...").
+ * - Luồng chữ Streaming thời gian thực mượt mà 60fps.
+ * - Danh sách Action Items kèm checkbox & nút thêm vào Task Tracker.
  */
 export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
   onInsertToNote,
@@ -43,10 +54,13 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
     isBottomSheetOpen,
     closeBottomSheet,
     isStreaming,
-    streamedContent
+    streamedContent,
+    activePrompt,
+    setActivePrompt
   } = useAIStore();
 
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
+  const [customQuestion, setCustomQuestion] = useState('');
 
   // Tự động phân tích các dòng gạch đầu dòng / số thứ tự thành Action Items có checkbox
   const actionItems = useMemo<ActionItem[]>(() => {
@@ -56,7 +70,6 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
 
     lines.forEach((line, idx) => {
       const trimmed = line.trim();
-      // Nhận diện các dòng có định dạng danh sách (1., -, *, •, [ ])
       if (/^[0-9]+[\.\)]|^\s*[-*•]\s*(\[[ xX]?\])?/.test(trimmed)) {
         const cleaned = trimmed
           .replace(/^[0-9]+[\.\)]|^\s*[-*•]\s*(\[[ xX]?\])?/, '')
@@ -76,7 +89,6 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
     return items;
   }, [streamedContent]);
 
-  // Khởi tạo trạng thái đã chọn cho các items mới
   useEffect(() => {
     if (actionItems.length > 0) {
       const initial: Record<string, boolean> = {};
@@ -94,6 +106,20 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
       ...prev,
       [id]: !prev[id]
     }));
+  };
+
+  const handleSelectPreset = (type: AIPromptType) => {
+    if (isStreaming) return;
+    setActivePrompt(type);
+    setCustomQuestion('');
+    onRequestStream(type);
+  };
+
+  const handleSendCustomQuestion = () => {
+    const q = customQuestion.trim();
+    if (!q || isStreaming) return;
+    onRequestStream(activePrompt, q);
+    setCustomQuestion('');
   };
 
   const handleAddTasks = () => {
@@ -114,13 +140,16 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
       transparent={true}
       onRequestClose={closeBottomSheet}
     >
-      <View style={styles.backdrop}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.backdrop}
+      >
         <Pressable style={styles.dismissArea} onPress={closeBottomSheet} />
 
         <View
           style={[
             styles.sheetContainer,
-            { paddingBottom: Math.max(insets.bottom + 12, 28) }
+            { paddingBottom: Math.max(insets.bottom + 12, 24) }
           ]}
         >
           {/* Handle */}
@@ -130,20 +159,81 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
           <View style={styles.headerRow}>
             <View style={styles.titleRow}>
               <View style={styles.dot} />
-              <Text style={styles.sheetTitle}>Trợ lý AI</Text>
+              <Text style={styles.sheetTitle}>MindVault AI Copilot</Text>
             </View>
 
-            <Pressable onPress={closeBottomSheet} style={styles.closeBtn}>
+            <Pressable onPress={closeBottomSheet} hitSlop={12} style={styles.closeBtn}>
               <Ionicons name="close" size={18} color={colors.onSurfaceVariant} />
             </Pressable>
           </View>
 
-          {/* Streaming Summary Text Area */}
+          {/* Prompt Presets Horizontal Scroll */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.presetsRow}
+          >
+            {PROMPT_PRESETS.map((preset) => {
+              const isActive = activePrompt === preset.type;
+              return (
+                <Pressable
+                  key={preset.type}
+                  disabled={isStreaming}
+                  onPress={() => handleSelectPreset(preset.type)}
+                  style={[
+                    styles.presetPill,
+                    isActive && styles.activePresetPill,
+                    isStreaming && { opacity: 0.5 }
+                  ]}
+                >
+                  <Ionicons
+                    name={preset.icon}
+                    size={14}
+                    color={isActive ? '#0B0F17' : colors.onSurfaceVariant}
+                  />
+                  <Text style={[styles.presetText, isActive && styles.activePresetText]}>
+                    {preset.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+
+          {/* Custom Question Input Row */}
+          <View style={styles.questionInputRow}>
+            <TextInput
+              style={styles.questionInput}
+              placeholder="Hỏi AI bất kỳ điều gì về ghi chú này..."
+              placeholderTextColor={colors.onSurfaceVariant}
+              value={customQuestion}
+              onChangeText={setCustomQuestion}
+              onSubmitEditing={handleSendCustomQuestion}
+              returnKeyType="send"
+              editable={!isStreaming}
+            />
+            <Pressable
+              disabled={isStreaming || !customQuestion.trim()}
+              onPress={handleSendCustomQuestion}
+              style={({ pressed }) => [
+                styles.sendBtn,
+                (!customQuestion.trim() || isStreaming) && styles.disabledSendBtn,
+                pressed && { opacity: 0.8 }
+              ]}
+            >
+              <Ionicons
+                name="arrow-up"
+                size={16}
+                color={customQuestion.trim() && !isStreaming ? '#0B0F17' : colors.onSurfaceVariant}
+              />
+            </Pressable>
+          </View>
+
+          {/* Streaming Text Output Area */}
           <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
             {isStreaming && !streamedContent ? (
               <View style={styles.loadingBox}>
                 <ActivityIndicator size="small" color={colors.primary} />
-                <Text style={styles.loadingText}>Đang tóm tắt nội dung...</Text>
+                <Text style={styles.loadingText}>Đang xử lý nội dung với Gemini 3.5...</Text>
               </View>
             ) : streamedContent ? (
               <View style={styles.summaryCard}>
@@ -182,22 +272,23 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
             )}
           </ScrollView>
 
-          {/* Single Action Button: Thêm vào việc cần làm */}
+          {/* Bottom Actions */}
           <View style={styles.footer}>
-            <Pressable
-              disabled={isStreaming || actionItems.length === 0}
-              onPress={handleAddTasks}
-              style={({ pressed }) => [
-                styles.primaryBtn,
-                (isStreaming || actionItems.length === 0) && styles.disabledBtn,
-                pressed && { opacity: 0.85 }
-              ]}
-            >
-              <Ionicons name="add-circle" size={18} color="#FFFFFF" />
-              <Text style={styles.primaryBtnText}>Thêm vào việc cần làm</Text>
-            </Pressable>
+            {actionItems.length > 0 ? (
+              <Pressable
+                disabled={isStreaming}
+                onPress={handleAddTasks}
+                style={({ pressed }) => [
+                  styles.primaryBtn,
+                  isStreaming && styles.disabledBtn,
+                  pressed && { opacity: 0.85 }
+                ]}
+              >
+                <Ionicons name="add-circle" size={18} color="#0B0F17" />
+                <Text style={styles.primaryBtnText}>Thêm vào việc cần làm</Text>
+              </Pressable>
+            ) : null}
 
-            {/* Secondary Link: Chèn vào ghi chú */}
             {streamedContent && !isStreaming ? (
               <Pressable
                 onPress={() => {
@@ -206,12 +297,13 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
                 }}
                 style={styles.insertLink}
               >
+                <Ionicons name="return-down-forward" size={15} color={colors.primary} />
                 <Text style={styles.insertLinkText}>Chèn văn bản vào ghi chú</Text>
               </Pressable>
             ) : null}
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
@@ -219,18 +311,18 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
     justifyContent: 'flex-end'
   },
   dismissArea: {
     flex: 1
   },
   sheetContainer: {
-    backgroundColor: '#161C28', // Flat card #161C28
+    backgroundColor: '#161C28',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingHorizontal: 20,
-    maxHeight: '80%',
+    paddingHorizontal: 18,
+    maxHeight: '85%',
     borderTopWidth: 1,
     borderTopColor: '#222B3D'
   },
@@ -247,7 +339,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 14
+    marginBottom: 10
   },
   titleRow: {
     flexDirection: 'row',
@@ -257,51 +349,105 @@ const styles = StyleSheet.create({
   dot: {
     width: 8,
     height: 8,
-    borderRadius: radius.full,
-    backgroundColor: colors.primary
+    borderRadius: 4,
+    backgroundColor: '#10B981'
   },
   sheetTitle: {
-    ...typography.headlineSm,
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.onSurface
+    ...typography.titleMedium,
+    color: '#F1F5F9',
+    fontWeight: '700'
   },
   closeBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: radius.full,
-    backgroundColor: '#1E2638',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#222B3D',
     alignItems: 'center',
     justifyContent: 'center'
   },
+  presetsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingBottom: 10
+  },
+  presetPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: '#0B0F17',
+    borderWidth: 1,
+    borderColor: '#222B3D'
+  },
+  activePresetPill: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary
+  },
+  presetText: {
+    ...typography.labelSm,
+    color: colors.onSurfaceVariant,
+    fontWeight: '600'
+  },
+  activePresetText: {
+    color: '#0B0F17',
+    fontWeight: '700'
+  },
+  questionInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0B0F17',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 42,
+    borderWidth: 1,
+    borderColor: '#222B3D',
+    marginBottom: 10,
+    gap: 8
+  },
+  questionInput: {
+    flex: 1,
+    ...typography.bodySm,
+    color: '#F1F5F9'
+  },
+  sendBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  disabledSendBtn: {
+    backgroundColor: '#222B3D'
+  },
   contentScroll: {
-    maxHeight: 380,
-    marginBottom: 12
+    maxHeight: 280,
+    marginVertical: 4
   },
   loadingBox: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 10,
-    paddingVertical: 24,
-    justifyContent: 'center'
+    paddingVertical: 24
   },
   loadingText: {
-    ...typography.bodySm,
+    ...typography.bodyMd,
     color: colors.onSurfaceVariant
   },
   summaryCard: {
-    backgroundColor: '#0E131F',
+    backgroundColor: '#0B0F17',
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#222B3D',
-    marginBottom: 14
+    borderColor: '#222B3D'
   },
   summaryText: {
-    ...typography.bodySm,
-    color: colors.onSurface,
-    lineHeight: 22,
-    fontSize: 13
+    ...typography.bodyMd,
+    color: '#F1F5F9',
+    lineHeight: 22
   },
   cursor: {
     width: 6,
@@ -310,36 +456,34 @@ const styles = StyleSheet.create({
     marginTop: 4
   },
   actionItemsSection: {
-    marginTop: 4
+    marginTop: 12,
+    paddingTop: 8
   },
   actionItemsTitle: {
-    ...typography.labelSm,
-    color: colors.onSurfaceVariant,
-    fontSize: 12,
+    ...typography.labelMd,
+    color: colors.primary,
     fontWeight: '600',
     marginBottom: 8
   },
   checkboxRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 10,
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(34, 43, 61, 0.4)'
+    borderBottomColor: '#222B3D'
   },
   itemText: {
+    flex: 1,
     ...typography.bodySm,
-    color: colors.onSurface,
-    fontSize: 13,
-    lineHeight: 18,
-    flex: 1
+    color: '#F1F5F9'
   },
   unselectedItemText: {
-    color: colors.onSurfaceVariant,
-    textDecorationLine: 'line-through'
+    textDecorationLine: 'line-through',
+    color: '#64748B'
   },
   footer: {
-    marginTop: 8,
+    marginTop: 12,
     gap: 8
   },
   primaryBtn: {
@@ -348,24 +492,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     backgroundColor: colors.primary,
-    paddingVertical: 13,
-    borderRadius: radius.full
+    paddingVertical: 12,
+    borderRadius: 12
   },
   disabledBtn: {
-    opacity: 0.4
+    opacity: 0.5
   },
   primaryBtnText: {
     ...typography.labelMd,
-    color: '#FFFFFF',
-    fontWeight: '600'
+    color: '#0B0F17',
+    fontWeight: '700'
   },
   insertLink: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 8
   },
   insertLinkText: {
-    ...typography.labelSm,
-    color: colors.onSurfaceVariant,
-    fontSize: 12
+    ...typography.labelMd,
+    color: colors.primary,
+    fontWeight: '600'
   }
 });

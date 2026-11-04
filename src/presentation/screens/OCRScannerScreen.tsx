@@ -16,7 +16,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, typography, radius } from '../theme/colors';
 import { ViewfinderOverlay, OCRScanMode } from '../components/ViewfinderOverlay';
-import { useOCRMutation } from '../hooks/useOCRMutation';
+import { useOCRExtractOnlyMutation } from '../hooks/useOCRMutation';
+import { useCreateNote } from '../hooks/useNotesQuery';
 import { OCRResult } from '../../domain/repositories/IAIService';
 
 /**
@@ -35,7 +36,9 @@ export const OCRScannerScreen: React.FC = () => {
   const [ocrResult, setOcrResult] = useState<OCRResult | null>(null);
   const [editableText, setEditableText] = useState('');
 
-  const ocrMutation = useOCRMutation();
+  const extractMutation = useOCRExtractOnlyMutation();
+  const createNoteMutation = useCreateNote();
+  const isProcessing = extractMutation.isPending || createNoteMutation.isPending;
 
   /**
    * Chụp ảnh thực tế từ camera của điện thoại
@@ -104,14 +107,14 @@ export const OCRScannerScreen: React.FC = () => {
    */
   const executeOCR = async (uri: string, base64Data?: string) => {
     try {
-      const response = await ocrMutation.mutateAsync({
+      const result = await extractMutation.mutateAsync({
         imageUri: uri,
         mode,
         base64: base64Data
       });
 
-      setOcrResult(response.ocrResult);
-      setEditableText(response.ocrResult.rawText);
+      setOcrResult(result);
+      setEditableText(result.rawText);
     } catch (e: any) {
       Alert.alert('Lỗi OCR', e.message || 'Không thể trích xuất văn bản từ tài liệu này.');
     }
@@ -128,28 +131,37 @@ export const OCRScannerScreen: React.FC = () => {
     }
 
     try {
-      const titlePrefix = mode === 'receipt' ? 'Hóa đơn' : mode === 'latex' ? 'Công thức' : mode === 'table' ? 'Bảng biểu' : 'Quét OCR';
+      const titlePrefix =
+        mode === 'receipt'
+          ? 'Hóa đơn'
+          : mode === 'latex'
+          ? 'Công thức'
+          : mode === 'table'
+          ? 'Bảng biểu'
+          : 'Quét OCR';
       const timeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
-      const response = await ocrMutation.mutateAsync({
-        imageUri: selectedImageUri || `sample://${mode}`,
-        mode,
-        noteTitle: `${titlePrefix} - ${timeStr}`
+      const newNote = await createNoteMutation.mutateAsync({
+        title: `${titlePrefix} - ${timeStr}`,
+        content: textToSave,
+        tags: ['OCR', mode.toUpperCase()],
+        isPinned: false,
+        isArchived: false,
+        hasOcr: true,
+        ocrRawText: textToSave
       });
 
-      if (response.note) {
-        Alert.alert(
-          'Đã lưu thành công',
-          `Ghi chú "${response.note.title}" đã được lưu an toàn.`,
-          [
-            {
-              text: 'Mở Soạn thảo',
-              onPress: () => router.push(`/note-editor/${response.note.id}`)
-            },
-            { text: 'Đóng', style: 'cancel' }
-          ]
-        );
-      }
+      Alert.alert(
+        'Đã lưu thành công',
+        `Ghi chú "${newNote.title}" đã được lưu an toàn.`,
+        [
+          {
+            text: 'Mở Soạn thảo',
+            onPress: () => router.push(`/note-editor/${newNote.id}`)
+          },
+          { text: 'Đóng', style: 'cancel' }
+        ]
+      );
     } catch (e: any) {
       Alert.alert('Lỗi lưu trữ', e.message);
     }
@@ -203,7 +215,7 @@ export const OCRScannerScreen: React.FC = () => {
         <View style={styles.controlsRow}>
           <Pressable
             onPress={handlePickImage}
-            disabled={ocrMutation.isPending}
+            disabled={isProcessing}
             style={({ pressed }) => [styles.sideControlBtn, pressed && { opacity: 0.7 }]}
           >
             <Ionicons name="images-outline" size={20} color={colors.onSurface} />
@@ -212,7 +224,7 @@ export const OCRScannerScreen: React.FC = () => {
 
           {/* Minimalist Shutter Button */}
           <Pressable
-            disabled={ocrMutation.isPending}
+            disabled={isProcessing}
             onPress={handleTakePhoto}
             style={({ pressed }) => [
               styles.shutterOuter,
@@ -220,7 +232,7 @@ export const OCRScannerScreen: React.FC = () => {
             ]}
           >
             <View style={styles.shutterInner}>
-              {ocrMutation.isPending ? (
+              {extractMutation.isPending ? (
                 <ActivityIndicator size="small" color="#0B0F17" />
               ) : (
                 <Ionicons name="camera" size={24} color="#0B0F17" />
@@ -230,7 +242,7 @@ export const OCRScannerScreen: React.FC = () => {
 
           <Pressable
             onPress={handleScanSample}
-            disabled={ocrMutation.isPending}
+            disabled={isProcessing}
             style={({ pressed }) => [styles.sideControlBtn, pressed && { opacity: 0.7 }]}
           >
             <Ionicons name="document-text-outline" size={20} color={colors.onSurface} />
@@ -242,10 +254,10 @@ export const OCRScannerScreen: React.FC = () => {
         <View style={styles.resultsCard}>
           <View style={styles.resultsHeader}>
             <Text style={styles.resultsTitle}>Văn bản nhận diện</Text>
-            {ocrMutation.isPending && (
+            {extractMutation.isPending && (
               <View style={styles.pendingRow}>
                 <ActivityIndicator size="small" color={colors.primary} />
-                <Text style={styles.pendingText}>Đang nhận diện...</Text>
+                <Text style={styles.pendingText}>Đang nhận diện với Gemini 3.5...</Text>
               </View>
             )}
           </View>
@@ -266,20 +278,20 @@ export const OCRScannerScreen: React.FC = () => {
           {/* Single Action Button: "Lưu thành ghi chú" */}
           <Pressable
             onPress={handleSaveToNote}
-            disabled={ocrMutation.isPending || !hasText}
+            disabled={isProcessing || !hasText}
             style={({ pressed }) => [
               styles.primarySaveBtn,
-              (!hasText || ocrMutation.isPending) && styles.disabledSaveBtn,
+              (!hasText || isProcessing) && styles.disabledSaveBtn,
               pressed && hasText && { opacity: 0.85 }
             ]}
           >
-            {ocrMutation.isPending ? (
+            {createNoteMutation.isPending ? (
               <ActivityIndicator size="small" color="#0B0F17" />
             ) : (
               <Ionicons name="bookmark-outline" size={18} color={hasText ? '#0B0F17' : colors.onSurfaceVariant} />
             )}
             <Text style={[styles.primarySaveText, !hasText && styles.disabledSaveText]}>
-              {ocrMutation.isPending ? 'Đang lưu...' : 'Lưu thành ghi chú'}
+              {createNoteMutation.isPending ? 'Đang lưu vào WatermelonDB...' : 'Lưu thành ghi chú'}
             </Text>
           </Pressable>
         </View>
