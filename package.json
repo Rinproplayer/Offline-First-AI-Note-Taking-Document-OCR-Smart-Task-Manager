@@ -10,6 +10,7 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "verify:domain": "node scripts/verify_domain.js",
+    "export:pdf": "node scripts/generate_pdf.js",
     "build:apk": "eas build -p android --profile preview",
     "build:apk:prod": "eas build -p android --profile production"
   },
