@@ -81,7 +81,7 @@ export const ViewfinderOverlay: React.FC<ViewfinderOverlayProps> = ({
                 style={[
                   styles.modeChipText,
                   { color: colors.onSurfaceVariant },
-                  isSelected && { color: '#0B0F17', fontWeight: '700' }
+                  isSelected && { color: '#FFFFFF', fontWeight: '700' }
                 ]}
               >
                 {m.label}

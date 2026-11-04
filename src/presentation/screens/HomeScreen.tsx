@@ -221,7 +221,7 @@ export const HomeScreen: React.FC = () => {
                 <Text style={styles.emptyText}>Chưa có ghi chú nào</Text>
                 <Pressable
                   onPress={() => router.push('/note-editor/new')}
-                  style={styles.createNoteBtn}
+                  style={[styles.createNoteBtn, { backgroundColor: colors.primary }]}
                 >
                   <Text style={styles.createNoteBtnText}>Tạo ghi chú mới</Text>
                 </Pressable>

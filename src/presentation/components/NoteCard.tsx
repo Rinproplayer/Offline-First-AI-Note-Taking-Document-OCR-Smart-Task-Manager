@@ -113,7 +113,6 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onPress, onDelete }) =
         style={[
           styles.cardWrapper,
           {
-            backgroundColor: colors.background,
             transform: [{ translateX }]
           }
         ]}
@@ -198,7 +197,7 @@ const styles = StyleSheet.create({
     fontWeight: '700'
   },
   cardWrapper: {
-    backgroundColor: colors.background
+    borderRadius: 16
   },
   card: {
     backgroundColor: '#161C28', // Flat card #161C28

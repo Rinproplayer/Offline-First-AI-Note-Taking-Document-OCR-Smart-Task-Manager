@@ -253,9 +253,9 @@ export const OCRScannerScreen: React.FC = () => {
           >
             <View style={[styles.shutterInner, { backgroundColor: colors.primary }]}>
               {extractMutation.isPending ? (
-                <ActivityIndicator size="small" color="#0B0F17" />
+                <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <Ionicons name="camera" size={24} color="#0B0F17" />
+                <Ionicons name="camera" size={24} color="#FFFFFF" />
               )}
             </View>
           </Pressable>
@@ -320,23 +320,27 @@ export const OCRScannerScreen: React.FC = () => {
             style={({ pressed }) => [
               styles.primarySaveBtn,
               { backgroundColor: colors.primary },
-              (!hasText || isProcessing) && { backgroundColor: colors.surfaceContainerHigh },
+              (!hasText || isProcessing) && {
+                backgroundColor: isDark ? colors.surfaceContainerHigh : '#F1F5F9',
+                borderWidth: 1,
+                borderColor: colors.outlineVariant
+              },
               pressed && hasText && { opacity: 0.85 }
             ]}
           >
             {createNoteMutation.isPending ? (
-              <ActivityIndicator size="small" color="#0B0F17" />
+              <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
               <Ionicons
                 name="bookmark-outline"
                 size={18}
-                color={hasText ? '#0B0F17' : colors.onSurfaceVariant}
+                color={hasText ? '#FFFFFF' : colors.onSurfaceVariant}
               />
             )}
             <Text
               style={[
                 styles.primarySaveText,
-                !hasText && { color: colors.onSurfaceVariant }
+                { color: hasText ? '#FFFFFF' : colors.onSurfaceVariant }
               ]}
             >
               {createNoteMutation.isPending ? 'Đang lưu vào WatermelonDB...' : 'Lưu thành ghi chú'}

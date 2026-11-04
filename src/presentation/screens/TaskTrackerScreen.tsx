@@ -205,8 +205,8 @@ export const TaskTrackerScreen: React.FC = () => {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Ionicons name="checkmark-done-circle-outline" size={44} color={colors.outlineVariant} />
-              <Text style={styles.emptyTitle}>Không có việc cần làm</Text>
-              <Text style={styles.emptySubtitle}>
+              <Text style={[styles.emptyTitle, { color: colors.onSurface }]}>Không có việc cần làm</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.onSurfaceVariant }]}>
                 {taskTab === 'today'
                   ? 'Tuyệt vời! Bạn không còn việc tồn đọng hôm nay.'
                   : taskTab === 'upcoming'

@@ -206,7 +206,7 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
                   <Ionicons
                     name={preset.icon}
                     size={14}
-                    color={isActive ? '#0B0F17' : colors.onSurfaceVariant}
+                    color={isActive ? '#FFFFFF' : colors.onSurfaceVariant}
                   />
                   <Text
                     style={[
@@ -257,7 +257,7 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
               <Ionicons
                 name="arrow-up"
                 size={16}
-                color={customQuestion.trim() && !isStreaming ? '#0B0F17' : colors.onSurfaceVariant}
+                color={customQuestion.trim() && !isStreaming ? '#FFFFFF' : colors.onSurfaceVariant}
               />
             </Pressable>
           </View>
@@ -340,7 +340,7 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
                   pressed && { opacity: 0.85 }
                 ]}
               >
-                <Ionicons name="add-circle" size={18} color="#0B0F17" />
+                <Ionicons name="add-circle" size={18} color="#FFFFFF" />
                 <Text style={styles.primaryBtnText}>Thêm vào việc cần làm</Text>
               </Pressable>
             ) : null}
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     fontWeight: '600'
   },
   activePresetText: {
-    color: '#0B0F17',
+    color: '#FFFFFF',
     fontWeight: '700'
   },
   questionInputRow: {
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: {
     ...typography.labelMd,
-    color: '#0B0F17',
+    color: '#FFFFFF',
     fontWeight: '700'
   },
   insertLink: {

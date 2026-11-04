@@ -129,7 +129,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         style={[
           styles.cardWrapper,
           {
-            backgroundColor: colors.background,
             transform: [{ translateX }]
           }
         ]}
@@ -266,7 +265,7 @@ const styles = StyleSheet.create({
     fontWeight: '700'
   },
   cardWrapper: {
-    backgroundColor: colors.background
+    borderRadius: 16
   },
   container: {
     flexDirection: 'row',
