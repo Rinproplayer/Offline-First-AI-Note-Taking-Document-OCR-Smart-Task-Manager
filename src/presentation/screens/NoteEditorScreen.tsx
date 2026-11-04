@@ -19,11 +19,13 @@ import { AIAssistantBottomSheet } from '../components/AIAssistantBottomSheet';
 import { useNoteById, useUpdateNote, useCreateNote, useDeleteNote } from '../hooks/useNotesQuery';
 import { useAISummaryStream } from '../hooks/useAISummaryStream';
 import { useAIStore } from '../stores/useAIStore';
+import { useTheme } from '../stores/useThemeStore';
 import { AIPromptType } from '../../domain/repositories/IAIService';
 import { watermelonTaskRepository } from '../../data/repositories/WatermelonTaskRepository';
 
 /**
  * Màn hình Soạn thảo Ghi chú (Note Editor Screen) - Phong cách Tối giản Notion / Craft
+ * - Hỗ trợ cả 2 giao diện Sáng / Tối.
  * - Giao diện viết chữ tràn viền, sạch sẽ, không có thanh công cụ rườm rà.
  * - Tự động hiển thị trạng thái lưu trữ bằng chấm nhỏ tinh tế.
  * - Tích hợp AI Copilot gọn gàng mở Bottom Sheet tóm tắt & trích xuất việc cần làm.
@@ -31,6 +33,7 @@ import { watermelonTaskRepository } from '../../data/repositories/WatermelonTask
 export const NoteEditorScreen: React.FC = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const isNew = !id || id === 'new';
 
@@ -161,12 +164,20 @@ export const NoteEditorScreen: React.FC = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
       {/* Minimal Top Bar (Notion Style) */}
-      <View style={[styles.topBar, { paddingTop: insets.top + 6 }]}>
+      <View
+        style={[
+          styles.topBar,
+          {
+            paddingTop: insets.top + 6,
+            borderBottomColor: colors.outlineVariant
+          }
+        ]}
+      >
         <Pressable
           onPress={() => router.back()}
           hitSlop={12}
@@ -178,7 +189,9 @@ export const NoteEditorScreen: React.FC = () => {
         {/* Status Dot */}
         <View style={styles.statusRow}>
           <View style={[styles.dot, !isSaved && styles.unsavedDot]} />
-          <Text style={styles.statusText}>{isSaved ? 'Đã lưu' : 'Chưa lưu'}</Text>
+          <Text style={[styles.statusText, { color: colors.onSurfaceVariant }]}>
+            {isSaved ? 'Đã lưu' : 'Chưa lưu'}
+          </Text>
         </View>
 
         {/* Right Actions: AI, Save & Delete */}
@@ -211,16 +224,27 @@ export const NoteEditorScreen: React.FC = () => {
 
           <Pressable
             onPress={() => handleOpenAI('summary')}
-            style={({ pressed }) => [styles.aiPill, pressed && { opacity: 0.75 }]}
+            style={({ pressed }) => [
+              styles.aiPill,
+              {
+                backgroundColor: isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(79, 70, 229, 0.1)',
+                borderColor: isDark ? 'rgba(99, 102, 241, 0.25)' : 'rgba(79, 70, 229, 0.25)'
+              },
+              pressed && { opacity: 0.75 }
+            ]}
           >
             <Ionicons name="sparkles" size={14} color={colors.primary} />
-            <Text style={styles.aiPillText}>AI</Text>
+            <Text style={[styles.aiPillText, { color: colors.primary }]}>AI</Text>
           </Pressable>
 
           <Pressable
             onPress={handleSave}
             disabled={updateNoteMutation.isPending || createNoteMutation.isPending}
-            style={({ pressed }) => [styles.saveBtn, pressed && { opacity: 0.75 }]}
+            style={({ pressed }) => [
+              styles.saveBtn,
+              { backgroundColor: colors.primary },
+              pressed && { opacity: 0.75 }
+            ]}
           >
             <Text style={styles.saveBtnText}>
               {updateNoteMutation.isPending || createNoteMutation.isPending ? 'Đang lưu' : 'Lưu'}
@@ -239,9 +263,9 @@ export const NoteEditorScreen: React.FC = () => {
       >
         {/* Title Input */}
         <TextInput
-          style={styles.titleInput}
+          style={[styles.titleInput, { color: colors.onSurface }]}
           placeholder="Tiêu đề..."
-          placeholderTextColor="#475569"
+          placeholderTextColor={colors.onSurfaceVariant}
           value={title}
           onChangeText={(val) => {
             setTitle(val);
@@ -252,9 +276,9 @@ export const NoteEditorScreen: React.FC = () => {
 
         {/* Body Text Input */}
         <TextInput
-          style={styles.bodyInput}
+          style={[styles.bodyInput, { color: colors.onSurface }]}
           placeholder="Bắt đầu viết ghi chú..."
-          placeholderTextColor="#475569"
+          placeholderTextColor={colors.onSurfaceVariant}
           value={content}
           onChangeText={(val) => {
             setContent(val);
@@ -266,29 +290,59 @@ export const NoteEditorScreen: React.FC = () => {
       </ScrollView>
 
       {/* Floating Action Bar at Bottom */}
-      <View style={[styles.floatingBottomBar, { bottom: Math.max(insets.bottom + 12, 20) }]}>
+      <View
+        style={[
+          styles.floatingBottomBar,
+          {
+            bottom: Math.max(insets.bottom + 12, 20),
+            backgroundColor: colors.surfaceContainer,
+            borderColor: colors.outlineVariant
+          }
+        ]}
+      >
         <Pressable
           onPress={() => router.push('/ocr')}
-          style={({ pressed }) => [styles.floatingPill, pressed && { opacity: 0.75 }]}
+          style={({ pressed }) => [
+            styles.floatingPill,
+            {
+              backgroundColor: isDark ? '#1E2638' : '#F1F5F9',
+              borderColor: colors.outlineVariant
+            },
+            pressed && { opacity: 0.75 }
+          ]}
         >
           <Ionicons name="camera-outline" size={15} color={colors.secondary} />
-          <Text style={styles.floatingPillText}>Quét OCR</Text>
+          <Text style={[styles.floatingPillText, { color: colors.onSurface }]}>Quét OCR</Text>
         </Pressable>
 
         <Pressable
           onPress={() => handleOpenAI('summary')}
-          style={({ pressed }) => [styles.floatingPill, pressed && { opacity: 0.75 }]}
+          style={({ pressed }) => [
+            styles.floatingPill,
+            {
+              backgroundColor: isDark ? '#1E2638' : '#F1F5F9',
+              borderColor: colors.outlineVariant
+            },
+            pressed && { opacity: 0.75 }
+          ]}
         >
           <Ionicons name="sparkles-outline" size={15} color={colors.primary} />
-          <Text style={styles.floatingPillText}>Tóm tắt AI</Text>
+          <Text style={[styles.floatingPillText, { color: colors.onSurface }]}>Tóm tắt AI</Text>
         </Pressable>
 
         <Pressable
           onPress={() => handleOpenAI('action_items')}
-          style={({ pressed }) => [styles.floatingPill, pressed && { opacity: 0.75 }]}
+          style={({ pressed }) => [
+            styles.floatingPill,
+            {
+              backgroundColor: isDark ? '#1E2638' : '#F1F5F9',
+              borderColor: colors.outlineVariant
+            },
+            pressed && { opacity: 0.75 }
+          ]}
         >
           <Ionicons name="checkbox-outline" size={15} color={colors.tertiary} />
-          <Text style={styles.floatingPillText}>Trích việc</Text>
+          <Text style={[styles.floatingPillText, { color: colors.onSurface }]}>Trích việc</Text>
         </Pressable>
       </View>
 

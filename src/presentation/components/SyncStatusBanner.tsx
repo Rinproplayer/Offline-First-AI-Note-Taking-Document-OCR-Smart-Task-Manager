@@ -2,9 +2,11 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, radius } from '../theme/colors';
+import { useTheme } from '../stores/useThemeStore';
 import { useSyncStore } from '../stores/useSyncStore';
 
 export const SyncStatusBanner: React.FC = () => {
+  const { colors } = useTheme();
   const { status, statusLabel, lastSyncTime, triggerSync } = useSyncStore();
 
   const formattedTime = lastSyncTime
@@ -14,7 +16,14 @@ export const SyncStatusBanner: React.FC = () => {
   return (
     <Pressable
       onPress={triggerSync}
-      style={({ pressed }) => [styles.bannerContainer, pressed && { opacity: 0.85 }]}
+      style={({ pressed }) => [
+        styles.bannerContainer,
+        {
+          backgroundColor: colors.surfaceContainer,
+          borderColor: colors.outlineVariant
+        },
+        pressed && { opacity: 0.85 }
+      ]}
     >
       <View style={styles.leftRow}>
         <View style={styles.pulseContainer}>
@@ -25,7 +34,7 @@ export const SyncStatusBanner: React.FC = () => {
             ]}
           />
         </View>
-        <Text style={styles.statusTitle}>{statusLabel}</Text>
+        <Text style={[styles.statusTitle, { color: colors.tertiary }]}>{statusLabel}</Text>
       </View>
 
       <View style={styles.rightRow}>
@@ -34,7 +43,9 @@ export const SyncStatusBanner: React.FC = () => {
           size={16}
           color={status === 'syncing' ? colors.secondary : colors.tertiary}
         />
-        <Text style={styles.statusSubtitle}>WatermelonDB • {formattedTime}</Text>
+        <Text style={[styles.statusSubtitle, { color: colors.onSurfaceVariant }]}>
+          WatermelonDB • {formattedTime}
+        </Text>
       </View>
     </Pressable>
   );

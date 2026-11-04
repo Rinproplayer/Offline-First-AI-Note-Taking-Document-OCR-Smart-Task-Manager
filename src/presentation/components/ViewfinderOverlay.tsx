@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Pressable, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, radius } from '../theme/colors';
+import { useTheme } from '../stores/useThemeStore';
 
 export type OCRScanMode = 'text' | 'receipt' | 'latex' | 'table';
 
@@ -22,6 +23,7 @@ export const ViewfinderOverlay: React.FC<ViewfinderOverlayProps> = ({
   onModeChange,
   imageUri
 }) => {
+  const { colors, isDark } = useTheme();
   const scanLineAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -63,9 +65,25 @@ export const ViewfinderOverlay: React.FC<ViewfinderOverlayProps> = ({
             <Pressable
               key={m.id}
               onPress={() => onModeChange(m.id)}
-              style={[styles.modeChip, isSelected && styles.activeModeChip]}
+              style={[
+                styles.modeChip,
+                {
+                  backgroundColor: colors.surfaceContainer,
+                  borderColor: colors.outlineVariant
+                },
+                isSelected && {
+                  backgroundColor: colors.primary,
+                  borderColor: colors.primary
+                }
+              ]}
             >
-              <Text style={[styles.modeChipText, isSelected && styles.activeModeChipText]}>
+              <Text
+                style={[
+                  styles.modeChipText,
+                  { color: colors.onSurfaceVariant },
+                  isSelected && { color: '#0B0F17', fontWeight: '700' }
+                ]}
+              >
                 {m.label}
               </Text>
             </Pressable>

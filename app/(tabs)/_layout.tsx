@@ -2,9 +2,12 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { View, StyleSheet, Platform } from 'react-native';
-import { colors, radius } from '../../src/presentation/theme/colors';
+import { radius } from '../../src/presentation/theme/colors';
+import { useTheme } from '../../src/presentation/stores/useThemeStore';
 
 export default function TabLayout() {
+  const { colors, isDark } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
@@ -12,7 +15,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.onSurfaceVariant,
         tabBarStyle: {
-          backgroundColor: 'rgba(15, 23, 42, 0.96)',
+          backgroundColor: isDark ? 'rgba(15, 23, 42, 0.96)' : 'rgba(255, 255, 255, 0.96)',
           borderTopColor: colors.outlineVariant,
           borderTopWidth: 1,
           height: Platform.OS === 'ios' ? 86 : 64,
@@ -57,7 +60,7 @@ export default function TabLayout() {
         options={{
           title: 'Quét OCR',
           tabBarIcon: ({ color, focused }: any) => (
-            <View style={focused ? styles.activeOcrIcon : undefined}>
+            <View style={focused ? [styles.activeOcrIcon, { backgroundColor: isDark ? 'rgba(56, 189, 248, 0.15)' : 'rgba(2, 132, 199, 0.15)' }] : undefined}>
               <Ionicons
                 name={focused ? 'scan' : 'scan-outline'}
                 size={22}
@@ -86,7 +89,6 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   activeOcrIcon: {
-    backgroundColor: 'rgba(56, 189, 248, 0.15)',
     paddingHorizontal: 12,
     paddingVertical: 2,
     borderRadius: radius.full

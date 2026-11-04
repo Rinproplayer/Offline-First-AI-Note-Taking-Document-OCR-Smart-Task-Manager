@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Note } from '../../domain/entities/Note';
 import { colors, typography } from '../theme/colors';
+import { useTheme } from '../stores/useThemeStore';
 
 interface NoteCardProps {
   note: Note;
@@ -21,8 +22,10 @@ interface NoteCardProps {
  * NoteCard - Thiết kế Tối giản Hiện đại Apple HIG
  * - Hỗ trợ vuốt sang trái (Swipe-to-delete) mượt mà làm lộ nút Xóa màu đỏ (#EF4444).
  * - Hiển thị tiêu đề, 1 dòng tóm tắt ngắn và thời gian sửa đổi.
+ * - Hỗ trợ cả 2 giao diện Sáng / Tối.
  */
 export const NoteCard: React.FC<NoteCardProps> = ({ note, onPress, onDelete }) => {
+  const { colors, isDark } = useTheme();
   const timeAgo = formatTimeAgo(note.updatedAt);
   const translateX = useRef(new Animated.Value(0)).current;
   const isOpen = useRef(false);
@@ -110,6 +113,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onPress, onDelete }) =
         style={[
           styles.cardWrapper,
           {
+            backgroundColor: colors.background,
             transform: [{ translateX }]
           }
         ]}
@@ -119,6 +123,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onPress, onDelete }) =
           onPress={handleCardPress}
           style={({ pressed }) => [
             styles.card,
+            {
+              backgroundColor: colors.surfaceContainer,
+              borderColor: colors.outlineVariant
+            },
             note.isPinned && styles.pinnedCard,
             pressed && styles.pressedCard
           ]}
@@ -129,16 +137,16 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onPress, onDelete }) =
               {note.isPinned && (
                 <Ionicons name="pin" size={13} color={colors.primary} style={styles.pinIcon} />
               )}
-              <Text style={styles.title} numberOfLines={1}>
+              <Text style={[styles.title, { color: colors.onSurface }]} numberOfLines={1}>
                 {note.title || 'Ghi chú không tiêu đề'}
               </Text>
             </View>
 
-            <Text style={styles.timeText}>{timeAgo}</Text>
+            <Text style={[styles.timeText, { color: colors.onSurfaceVariant }]}>{timeAgo}</Text>
           </View>
 
           {/* 1 Short Content Preview Line */}
-          <Text style={styles.contentPreview} numberOfLines={1}>
+          <Text style={[styles.contentPreview, { color: colors.onSurfaceVariant }]} numberOfLines={1}>
             {note.content ? note.content.replace(/\n+/g, ' ') : 'Chưa có nội dung...'}
           </Text>
         </Pressable>

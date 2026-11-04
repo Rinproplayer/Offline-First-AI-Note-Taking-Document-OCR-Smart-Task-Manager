@@ -20,16 +20,19 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useFilterStore } from '../stores/useFilterStore';
 import { useNotes, useDeleteNote } from '../hooks/useNotesQuery';
 import { useTasks, useToggleTaskComplete } from '../hooks/useTasksQuery';
+import { useTheme } from '../stores/useThemeStore';
 import { Note } from '../../domain/entities/Note';
 
 /**
  * Màn hình Trang Chủ (Home Dashboard) - Phong cách Tối giản Apple HIG & Material 3
+ * - Hỗ trợ cả 2 giao diện Sáng (Light Mode) và Tối (Dark Mode).
  * - Không có banner thống kê phức tạp.
  * - Danh sách 1 cột dọc thoáng đãng với FlashList 60fps.
  * - Khu vực 3 dòng checkbox "Việc cần làm hôm nay" gọn gàng.
  */
 export const HomeScreen: React.FC = () => {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
 
   // Zustand Store
   const { user } = useAuthStore();
@@ -54,10 +57,18 @@ export const HomeScreen: React.FC = () => {
   const renderHeader = () => (
     <View style={styles.headerArea}>
       {/* Search Input Bar */}
-      <View style={styles.searchBar}>
+      <View
+        style={[
+          styles.searchBar,
+          {
+            backgroundColor: colors.surfaceContainer,
+            borderColor: colors.outlineVariant
+          }
+        ]}
+      >
         <Ionicons name="search" size={16} color={colors.onSurfaceVariant} />
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: colors.onSurface }]}
           placeholder="Tìm kiếm ghi chú..."
           placeholderTextColor={colors.onSurfaceVariant}
           value={searchQuery}
@@ -83,9 +94,21 @@ export const HomeScreen: React.FC = () => {
             <Pressable
               key={cat}
               onPress={() => setSelectedTag(cat === 'Tất cả' ? '' : cat)}
-              style={[styles.categoryChip, isSelected && styles.activeCategoryChip]}
+              style={[
+                styles.categoryChip,
+                {
+                  backgroundColor: isSelected ? colors.primary : colors.surfaceContainer,
+                  borderColor: isSelected ? colors.primary : colors.outlineVariant
+                }
+              ]}
             >
-              <Text style={[styles.categoryText, isSelected && styles.activeCategoryText]}>
+              <Text
+                style={[
+                  styles.categoryText,
+                  { color: isSelected ? '#FFFFFF' : colors.onSurfaceVariant },
+                  isSelected && styles.activeCategoryText
+                ]}
+              >
                 {cat}
               </Text>
             </Pressable>
@@ -95,13 +118,21 @@ export const HomeScreen: React.FC = () => {
 
       {/* Việc cần làm hôm nay (Gom gọn 3 dòng Checkbox) */}
       <View style={styles.sectionHeaderRow}>
-        <Text style={styles.sectionTitle}>Việc hôm nay</Text>
+        <Text style={[styles.sectionTitle, { color: colors.onSurface }]}>Việc hôm nay</Text>
         <Pressable onPress={() => router.push('/tasks')}>
-          <Text style={styles.viewAllText}>Xem tất cả</Text>
+          <Text style={[styles.viewAllText, { color: colors.primary }]}>Xem tất cả</Text>
         </Pressable>
       </View>
 
-      <View style={styles.tasksBox}>
+      <View
+        style={[
+          styles.tasksBox,
+          {
+            backgroundColor: colors.surfaceContainer,
+            borderColor: colors.outlineVariant
+          }
+        ]}
+      >
         {todayTasks.length > 0 ? (
           todayTasks.map((t) => (
             <Pressable
@@ -117,7 +148,11 @@ export const HomeScreen: React.FC = () => {
                 color={t.isCompleted ? colors.tertiary : colors.onSurfaceVariant}
               />
               <Text
-                style={[styles.taskTitle, t.isCompleted && styles.completedTaskTitle]}
+                style={[
+                  styles.taskTitle,
+                  { color: t.isCompleted ? colors.onSurfaceVariant : colors.onSurface },
+                  t.isCompleted && styles.completedTaskTitle
+                ]}
                 numberOfLines={1}
               >
                 {t.title}
@@ -125,21 +160,23 @@ export const HomeScreen: React.FC = () => {
             </Pressable>
           ))
         ) : (
-          <Text style={styles.emptyTasksText}>Không có việc cần làm hôm nay ✨</Text>
+          <Text style={[styles.emptyTasksText, { color: colors.onSurfaceVariant }]}>
+            Không có việc cần làm hôm nay ✨
+          </Text>
         )}
       </View>
 
       {/* Recent Notes Header */}
       <View style={styles.sectionHeaderRow}>
-        <Text style={styles.sectionTitle}>Ghi chú gần đây</Text>
-        <Text style={styles.countText}>{notes.length}</Text>
+        <Text style={[styles.sectionTitle, { color: colors.onSurface }]}>Ghi chú gần đây</Text>
+        <Text style={[styles.countText, { color: colors.onSurfaceVariant }]}>{notes.length}</Text>
       </View>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <MaterialHeader title="MindVault" subtitle="" />
 
       <View style={styles.listContainer}>

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, TaskPriority } from '../../domain/entities/Task';
 import { colors, typography } from '../theme/colors';
+import { useTheme } from '../stores/useThemeStore';
 
 interface TaskItemProps {
   task: Task;
@@ -14,7 +15,7 @@ interface TaskItemProps {
 
 /**
  * TaskItem - Minimalist Apple HIG & Material 3 Refactored
- * - Thẻ phẳng #161C28, bo góc 16px
+ * - Thẻ phẳng #161C28 (hoặc #FFFFFF trong Light Mode), bo góc 16px
  * - Checkbox gọn gàng (xanh ngọc #10B981 khi hoàn thành)
  * - Tên ghi chú gốc đi kèm (nếu có)
  * - Nút xóa tinh tế
@@ -26,11 +27,17 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   onPress,
   onDelete
 }) => {
+  const { colors, isDark } = useTheme();
+
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
         styles.container,
+        {
+          backgroundColor: colors.surfaceContainer,
+          borderColor: colors.outlineVariant
+        },
         task.isCompleted && styles.completedContainer,
         pressed && { opacity: 0.85 }
       ]}
@@ -41,17 +48,22 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         onPress={onToggleComplete}
         style={({ pressed }) => [
           styles.checkbox,
-          task.isCompleted && styles.checkedCheckbox,
+          { borderColor: colors.outline },
+          task.isCompleted && { backgroundColor: colors.primary, borderColor: colors.primary },
           pressed && { transform: [{ scale: 0.9 }] }
         ]}
       >
-        {task.isCompleted && <Ionicons name="checkmark" size={14} color="#0B0F17" />}
+        {task.isCompleted && <Ionicons name="checkmark" size={14} color="#FFFFFF" />}
       </Pressable>
 
       {/* Task Content */}
       <View style={styles.contentColumn}>
         <Text
-          style={[styles.taskTitle, task.isCompleted && styles.completedTaskTitle]}
+          style={[
+            styles.taskTitle,
+            { color: colors.onSurface },
+            task.isCompleted && styles.completedTaskTitle
+          ]}
           numberOfLines={2}
         >
           {task.title}
@@ -60,25 +72,35 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         {/* Note Source and Metadata Row */}
         <View style={styles.metaRow}>
           {parentNoteTitle ? (
-            <View style={styles.noteSourceTag}>
+            <View
+              style={[
+                styles.noteSourceTag,
+                { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.15)' }
+              ]}
+            >
               <Ionicons name="document-text-outline" size={12} color={colors.primary} />
-              <Text style={styles.noteSourceText} numberOfLines={1}>
+              <Text style={[styles.noteSourceText, { color: colors.primary }]} numberOfLines={1}>
                 {parentNoteTitle}
               </Text>
             </View>
           ) : null}
 
           {task.source === 'ai_extracted' && !parentNoteTitle && (
-            <View style={styles.aiTag}>
+            <View
+              style={[
+                styles.aiTag,
+                { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.15)' }
+              ]}
+            >
               <Ionicons name="sparkles" size={11} color={colors.primary} />
-              <Text style={styles.aiTagText}>Từ AI</Text>
+              <Text style={[styles.aiTagText, { color: colors.primary }]}>Từ AI</Text>
             </View>
           )}
 
           {task.dueDate && (
             <View style={styles.dateTag}>
               <Ionicons name="calendar-outline" size={11} color={colors.onSurfaceVariant} />
-              <Text style={styles.dateText}>
+              <Text style={[styles.dateText, { color: colors.onSurfaceVariant }]}>
                 {new Date(task.dueDate).toLocaleDateString('vi-VN', {
                   day: 'numeric',
                   month: 'numeric'

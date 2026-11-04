@@ -14,6 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, typography, radius } from '../theme/colors';
+import { useTheme } from '../stores/useThemeStore';
 import { useAIStore } from '../stores/useAIStore';
 import { AIPromptType } from '../../domain/repositories/IAIService';
 
@@ -50,6 +51,7 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
   onCreateTasks
 }) => {
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
   const {
     isBottomSheetOpen,
     closeBottomSheet,
@@ -149,20 +151,28 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
         <View
           style={[
             styles.sheetContainer,
-            { paddingBottom: Math.max(insets.bottom + 12, 24) }
+            {
+              backgroundColor: colors.surfaceContainer,
+              borderTopColor: colors.outlineVariant,
+              paddingBottom: Math.max(insets.bottom + 12, 24)
+            }
           ]}
         >
           {/* Handle */}
-          <View style={styles.handleBar} />
+          <View style={[styles.handleBar, { backgroundColor: colors.outlineVariant }]} />
 
           {/* Header */}
           <View style={styles.headerRow}>
             <View style={styles.titleRow}>
               <View style={styles.dot} />
-              <Text style={styles.sheetTitle}>MindVault AI Copilot</Text>
+              <Text style={[styles.sheetTitle, { color: colors.onSurface }]}>MindVault AI Copilot</Text>
             </View>
 
-            <Pressable onPress={closeBottomSheet} hitSlop={12} style={styles.closeBtn}>
+            <Pressable
+              onPress={closeBottomSheet}
+              hitSlop={12}
+              style={[styles.closeBtn, { backgroundColor: colors.surfaceContainerHigh }]}
+            >
               <Ionicons name="close" size={18} color={colors.onSurfaceVariant} />
             </Pressable>
           </View>
@@ -182,7 +192,14 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
                   onPress={() => handleSelectPreset(preset.type)}
                   style={[
                     styles.presetPill,
-                    isActive && styles.activePresetPill,
+                    {
+                      backgroundColor: isDark ? colors.background : colors.surface,
+                      borderColor: colors.outlineVariant
+                    },
+                    isActive && {
+                      backgroundColor: colors.primary,
+                      borderColor: colors.primary
+                    },
                     isStreaming && { opacity: 0.5 }
                   ]}
                 >
@@ -191,7 +208,13 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
                     size={14}
                     color={isActive ? '#0B0F17' : colors.onSurfaceVariant}
                   />
-                  <Text style={[styles.presetText, isActive && styles.activePresetText]}>
+                  <Text
+                    style={[
+                      styles.presetText,
+                      { color: colors.onSurfaceVariant },
+                      isActive && styles.activePresetText
+                    ]}
+                  >
                     {preset.label}
                   </Text>
                 </Pressable>
@@ -200,9 +223,17 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
           </ScrollView>
 
           {/* Custom Question Input Row */}
-          <View style={styles.questionInputRow}>
+          <View
+            style={[
+              styles.questionInputRow,
+              {
+                backgroundColor: isDark ? colors.background : colors.surface,
+                borderColor: colors.outlineVariant
+              }
+            ]}
+          >
             <TextInput
-              style={styles.questionInput}
+              style={[styles.questionInput, { color: colors.onSurface }]}
               placeholder="Hỏi AI bất kỳ điều gì về ghi chú này..."
               placeholderTextColor={colors.onSurfaceVariant}
               value={customQuestion}
@@ -216,7 +247,10 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
               onPress={handleSendCustomQuestion}
               style={({ pressed }) => [
                 styles.sendBtn,
-                (!customQuestion.trim() || isStreaming) && styles.disabledSendBtn,
+                { backgroundColor: colors.primary },
+                (!customQuestion.trim() || isStreaming) && {
+                  backgroundColor: colors.surfaceContainerHigh
+                },
                 pressed && { opacity: 0.8 }
               ]}
             >
@@ -233,26 +267,43 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
             {isStreaming && !streamedContent ? (
               <View style={styles.loadingBox}>
                 <ActivityIndicator size="small" color={colors.primary} />
-                <Text style={styles.loadingText}>Đang xử lý nội dung với Gemini 3.5...</Text>
+                <Text style={[styles.loadingText, { color: colors.onSurfaceVariant }]}>
+                  Đang xử lý nội dung với Gemini 3.5...
+                </Text>
               </View>
             ) : streamedContent ? (
-              <View style={styles.summaryCard}>
-                <Text style={styles.summaryText}>{streamedContent}</Text>
-                {isStreaming && <View style={styles.cursor} />}
+              <View
+                style={[
+                  styles.summaryCard,
+                  {
+                    backgroundColor: isDark ? colors.background : colors.surface,
+                    borderColor: colors.outlineVariant
+                  }
+                ]}
+              >
+                <Text style={[styles.summaryText, { color: colors.onSurface }]}>
+                  {streamedContent}
+                </Text>
+                {isStreaming && <View style={[styles.cursor, { backgroundColor: colors.primary }]} />}
               </View>
             ) : null}
 
             {/* Checkbox Action Items List */}
             {actionItems.length > 0 && (
               <View style={styles.actionItemsSection}>
-                <Text style={styles.actionItemsTitle}>Việc cần làm được trích xuất:</Text>
+                <Text style={[styles.actionItemsTitle, { color: colors.primary }]}>
+                  Việc cần làm được trích xuất:
+                </Text>
                 {actionItems.map((item) => {
                   const isChecked = selectedItems[item.id] !== false;
                   return (
                     <Pressable
                       key={item.id}
                       onPress={() => toggleItem(item.id)}
-                      style={styles.checkboxRow}
+                      style={[
+                        styles.checkboxRow,
+                        { borderBottomColor: colors.outlineVariant }
+                      ]}
                     >
                       <Ionicons
                         name={isChecked ? 'checkbox' : 'square-outline'}
@@ -260,7 +311,11 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
                         color={isChecked ? colors.primary : colors.outline}
                       />
                       <Text
-                        style={[styles.itemText, !isChecked && styles.unselectedItemText]}
+                        style={[
+                          styles.itemText,
+                          { color: colors.onSurface },
+                          !isChecked && styles.unselectedItemText
+                        ]}
                         numberOfLines={2}
                       >
                         {item.text}
@@ -280,6 +335,7 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
                 onPress={handleAddTasks}
                 style={({ pressed }) => [
                   styles.primaryBtn,
+                  { backgroundColor: colors.primary },
                   isStreaming && styles.disabledBtn,
                   pressed && { opacity: 0.85 }
                 ]}
@@ -298,7 +354,9 @@ export const AIAssistantBottomSheet: React.FC<AIAssistantBottomSheetProps> = ({
                 style={styles.insertLink}
               >
                 <Ionicons name="return-down-forward" size={15} color={colors.primary} />
-                <Text style={styles.insertLinkText}>Chèn văn bản vào ghi chú</Text>
+                <Text style={[styles.insertLinkText, { color: colors.primary }]}>
+                  Chèn văn bản vào ghi chú
+                </Text>
               </Pressable>
             ) : null}
           </View>

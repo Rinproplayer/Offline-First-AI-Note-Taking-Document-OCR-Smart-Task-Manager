@@ -16,17 +16,19 @@ import { TaskItem } from '../components/TaskItem';
 import { useTasks, useToggleTaskComplete, useCreateTask, useDeleteTask } from '../hooks/useTasksQuery';
 import { useNotes } from '../hooks/useNotesQuery';
 import { useFilterStore, TaskTab } from '../stores/useFilterStore';
+import { useTheme } from '../stores/useThemeStore';
 import { Task } from '../../domain/entities/Task';
 
 /**
  * TaskTrackerScreen - Minimalist Apple HIG & Material 3 Refactored
- * - Bỏ toàn bộ banner thống kê tuần & tiến độ % rườm rà
- * - Bỏ các hàng chip lọc ưu tiên trùng lặp
- * - Giữ duy nhất 1 thanh chuyển tab ("Hôm nay", "Sắp tới", "Từ AI")
- * - Danh sách công việc thoáng đãng kèm tên ghi chú gốc
+ * - Hỗ trợ cả 2 giao diện Sáng / Tối.
+ * - Bỏ toàn bộ banner thống kê tuần & tiến độ % rườm rà.
+ * - Giữ duy nhất 1 thanh chuyển tab ("Hôm nay", "Sắp tới", "Từ AI").
+ * - Danh sách công việc thoáng đãng kèm tên ghi chú gốc.
  */
 export const TaskTrackerScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
   const { taskTab, setTaskTab } = useFilterStore();
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
@@ -74,34 +76,63 @@ export const TaskTrackerScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <MaterialHeader title="MindVault" subtitle="NHIỆM VỤ" />
 
       {/* 3-Tab Segmented Control ("Hôm nay", "Sắp tới", "Từ AI") */}
       <View style={styles.tabBarContainer}>
-        <View style={styles.segmentedControl}>
+        <View
+          style={[
+            styles.segmentedControl,
+            {
+              backgroundColor: colors.surfaceContainer,
+              borderColor: colors.outlineVariant
+            }
+          ]}
+        >
           <Pressable
             onPress={() => setTaskTab('today')}
-            style={[styles.segmentBtn, taskTab === 'today' && styles.activeSegmentBtn]}
+            style={[
+              styles.segmentBtn,
+              taskTab === 'today' && { backgroundColor: colors.outlineVariant }
+            ]}
           >
-            <Text style={[styles.segmentText, taskTab === 'today' && styles.activeSegmentText]}>
+            <Text
+              style={[
+                styles.segmentText,
+                { color: taskTab === 'today' ? colors.onSurface : colors.onSurfaceVariant },
+                taskTab === 'today' && styles.activeSegmentText
+              ]}
+            >
               Hôm nay
             </Text>
           </Pressable>
 
           <Pressable
             onPress={() => setTaskTab('upcoming')}
-            style={[styles.segmentBtn, taskTab === 'upcoming' && styles.activeSegmentBtn]}
+            style={[
+              styles.segmentBtn,
+              taskTab === 'upcoming' && { backgroundColor: colors.outlineVariant }
+            ]}
           >
-            <Text style={[styles.segmentText, taskTab === 'upcoming' && styles.activeSegmentText]}>
+            <Text
+              style={[
+                styles.segmentText,
+                { color: taskTab === 'upcoming' ? colors.onSurface : colors.onSurfaceVariant },
+                taskTab === 'upcoming' && styles.activeSegmentText
+              ]}
+            >
               Sắp tới
             </Text>
           </Pressable>
 
           <Pressable
             onPress={() => setTaskTab('ai')}
-            style={[styles.segmentBtn, taskTab === 'ai' && styles.activeSegmentBtn]}
+            style={[
+              styles.segmentBtn,
+              taskTab === 'ai' && { backgroundColor: colors.outlineVariant }
+            ]}
           >
             <Ionicons
               name="sparkles"
@@ -109,7 +140,13 @@ export const TaskTrackerScreen: React.FC = () => {
               color={taskTab === 'ai' ? colors.primary : colors.onSurfaceVariant}
               style={{ marginRight: 4 }}
             />
-            <Text style={[styles.segmentText, taskTab === 'ai' && styles.activeSegmentText]}>
+            <Text
+              style={[
+                styles.segmentText,
+                { color: taskTab === 'ai' ? colors.onSurface : colors.onSurfaceVariant },
+                taskTab === 'ai' && styles.activeSegmentText
+              ]}
+            >
               Từ AI
             </Text>
           </Pressable>
@@ -118,9 +155,17 @@ export const TaskTrackerScreen: React.FC = () => {
 
       {/* Quick Add Task Input */}
       <View style={styles.inputContainer}>
-        <View style={styles.quickAddRow}>
+        <View
+          style={[
+            styles.quickAddRow,
+            {
+              backgroundColor: colors.surfaceContainer,
+              borderColor: colors.outlineVariant
+            }
+          ]}
+        >
           <TextInput
-            style={styles.quickAddInput}
+            style={[styles.quickAddInput, { color: colors.onSurface }]}
             placeholder="Thêm việc mới..."
             placeholderTextColor={colors.onSurfaceVariant}
             value={newTaskTitle}
@@ -133,14 +178,15 @@ export const TaskTrackerScreen: React.FC = () => {
             disabled={!newTaskTitle.trim()}
             style={({ pressed }) => [
               styles.quickAddBtn,
-              !newTaskTitle.trim() && styles.disabledAddBtn,
+              { backgroundColor: colors.primary },
+              !newTaskTitle.trim() && { backgroundColor: isDark ? colors.surfaceContainerHigh : '#E2E8F0' },
               pressed && newTaskTitle.trim() && { opacity: 0.8 }
             ]}
           >
             <Ionicons
               name="arrow-up"
               size={18}
-              color={newTaskTitle.trim() ? '#0B0F17' : colors.onSurfaceVariant}
+              color={newTaskTitle.trim() ? '#FFFFFF' : colors.onSurfaceVariant}
             />
           </Pressable>
         </View>

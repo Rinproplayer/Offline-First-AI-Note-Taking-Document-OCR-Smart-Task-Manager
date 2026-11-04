@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { colors } from '../src/presentation/theme/colors';
+import { useTheme } from '../src/presentation/stores/useThemeStore';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,26 +14,36 @@ const queryClient = new QueryClient({
   }
 });
 
+function RootNavigation() {
+  const { colors, isDark } = useTheme();
+
+  return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.background }
+        }}
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="note-editor/[id]"
+          options={{
+            presentation: 'card',
+            headerShown: false
+          }}
+        />
+      </Stack>
+    </>
+  );
+}
+
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <StatusBar style="light" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: colors.background }
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="note-editor/[id]"
-            options={{
-              presentation: 'card',
-              headerShown: false
-            }}
-          />
-        </Stack>
+        <RootNavigation />
       </QueryClientProvider>
     </SafeAreaProvider>
   );

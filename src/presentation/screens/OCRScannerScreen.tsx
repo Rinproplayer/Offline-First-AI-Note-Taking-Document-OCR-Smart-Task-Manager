@@ -15,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, typography, radius } from '../theme/colors';
+import { useTheme } from '../stores/useThemeStore';
 import { ViewfinderOverlay, OCRScanMode } from '../components/ViewfinderOverlay';
 import { useOCRExtractOnlyMutation } from '../hooks/useOCRMutation';
 import { useCreateNote } from '../hooks/useNotesQuery';
@@ -30,6 +31,7 @@ import { OCRResult } from '../../domain/repositories/IAIService';
 export const OCRScannerScreen: React.FC = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
   const [mode, setMode] = useState<OCRScanMode>('text');
   const [flashOn, setFlashOn] = useState(false);
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
@@ -170,21 +172,38 @@ export const OCRScannerScreen: React.FC = () => {
   const hasText = editableText.trim().length > 0;
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
       {/* Sleek Minimal Header */}
-      <View style={[styles.header, { paddingTop: insets.top, height: 56 + insets.top }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.iconButton}>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingTop: insets.top,
+            height: 56 + insets.top,
+            borderBottomColor: colors.outlineVariant
+          }
+        ]}
+      >
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={12}
+          style={[styles.iconButton, { backgroundColor: colors.surfaceContainer }]}
+        >
           <Ionicons name="arrow-back" size={22} color={colors.onSurface} />
         </Pressable>
 
-        <Text style={styles.headerTitle}>Quét tài liệu</Text>
+        <Text style={[styles.headerTitle, { color: colors.onSurface }]}>Quét tài liệu</Text>
 
         <Pressable
           onPress={() => setFlashOn(!flashOn)}
           hitSlop={12}
-          style={[styles.iconButton, flashOn && styles.activeFlash]}
+          style={[
+            styles.iconButton,
+            { backgroundColor: colors.surfaceContainer },
+            flashOn && styles.activeFlash
+          ]}
         >
           <Ionicons
             name={flashOn ? 'flash' : 'flash-off-outline'}
@@ -219,7 +238,7 @@ export const OCRScannerScreen: React.FC = () => {
             style={({ pressed }) => [styles.sideControlBtn, pressed && { opacity: 0.7 }]}
           >
             <Ionicons name="images-outline" size={20} color={colors.onSurface} />
-            <Text style={styles.sideControlText}>Thư viện</Text>
+            <Text style={[styles.sideControlText, { color: colors.onSurfaceVariant }]}>Thư viện</Text>
           </Pressable>
 
           {/* Minimalist Shutter Button */}
@@ -228,10 +247,11 @@ export const OCRScannerScreen: React.FC = () => {
             onPress={handleTakePhoto}
             style={({ pressed }) => [
               styles.shutterOuter,
+              { borderColor: colors.primary },
               pressed && { transform: [{ scale: 0.94 }] }
             ]}
           >
-            <View style={styles.shutterInner}>
+            <View style={[styles.shutterInner, { backgroundColor: colors.primary }]}>
               {extractMutation.isPending ? (
                 <ActivityIndicator size="small" color="#0B0F17" />
               ) : (
@@ -246,26 +266,44 @@ export const OCRScannerScreen: React.FC = () => {
             style={({ pressed }) => [styles.sideControlBtn, pressed && { opacity: 0.7 }]}
           >
             <Ionicons name="document-text-outline" size={20} color={colors.onSurface} />
-            <Text style={styles.sideControlText}>Mẫu</Text>
+            <Text style={[styles.sideControlText, { color: colors.onSurfaceVariant }]}>Mẫu</Text>
           </Pressable>
         </View>
 
-        {/* Text Drawer (Flat card #161C28, 16px radius) */}
-        <View style={styles.resultsCard}>
+        {/* Text Drawer (Flat card #161C28 / #FFFFFF, 16px radius) */}
+        <View
+          style={[
+            styles.resultsCard,
+            {
+              backgroundColor: colors.surfaceContainer,
+              borderColor: colors.outlineVariant
+            }
+          ]}
+        >
           <View style={styles.resultsHeader}>
-            <Text style={styles.resultsTitle}>Văn bản nhận diện</Text>
+            <Text style={[styles.resultsTitle, { color: colors.onSurface }]}>Văn bản nhận diện</Text>
             {extractMutation.isPending && (
               <View style={styles.pendingRow}>
                 <ActivityIndicator size="small" color={colors.primary} />
-                <Text style={styles.pendingText}>Đang nhận diện với Gemini 3.5...</Text>
+                <Text style={[styles.pendingText, { color: colors.primary }]}>
+                  Đang nhận diện với Gemini 3.5...
+                </Text>
               </View>
             )}
           </View>
 
           {/* Editable Text Area */}
-          <View style={styles.textBox}>
+          <View
+            style={[
+              styles.textBox,
+              {
+                backgroundColor: isDark ? colors.background : colors.surface,
+                borderColor: colors.outlineVariant
+              }
+            ]}
+          >
             <TextInput
-              style={styles.rawTextInput}
+              style={[styles.rawTextInput, { color: colors.onSurface }]}
               multiline
               value={editableText || (ocrResult ? ocrResult.rawText : '')}
               onChangeText={setEditableText}
@@ -281,16 +319,26 @@ export const OCRScannerScreen: React.FC = () => {
             disabled={isProcessing || !hasText}
             style={({ pressed }) => [
               styles.primarySaveBtn,
-              (!hasText || isProcessing) && styles.disabledSaveBtn,
+              { backgroundColor: colors.primary },
+              (!hasText || isProcessing) && { backgroundColor: colors.surfaceContainerHigh },
               pressed && hasText && { opacity: 0.85 }
             ]}
           >
             {createNoteMutation.isPending ? (
               <ActivityIndicator size="small" color="#0B0F17" />
             ) : (
-              <Ionicons name="bookmark-outline" size={18} color={hasText ? '#0B0F17' : colors.onSurfaceVariant} />
+              <Ionicons
+                name="bookmark-outline"
+                size={18}
+                color={hasText ? '#0B0F17' : colors.onSurfaceVariant}
+              />
             )}
-            <Text style={[styles.primarySaveText, !hasText && styles.disabledSaveText]}>
+            <Text
+              style={[
+                styles.primarySaveText,
+                !hasText && { color: colors.onSurfaceVariant }
+              ]}
+            >
               {createNoteMutation.isPending ? 'Đang lưu vào WatermelonDB...' : 'Lưu thành ghi chú'}
             </Text>
           </Pressable>
