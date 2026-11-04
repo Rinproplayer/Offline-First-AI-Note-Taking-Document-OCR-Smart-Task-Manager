@@ -20,11 +20,11 @@ import { useOCRMutation } from '../hooks/useOCRMutation';
 import { OCRResult } from '../../domain/repositories/IAIService';
 
 /**
- * Màn hình Quét Tài Liệu OCR (OCR Scanner Screen)
- * Hỗ trợ 3 phương thức quét:
- * 1. Chụp ảnh camera thực tế
- * 2. Chọn ảnh tài liệu/chữ viết tay từ thư viện
- * 3. Quét nhanh tài liệu mẫu theo từng chế độ (Văn bản, Hóa đơn, LaTeX, Bảng)
+ * OCRScannerScreen - Minimalist Apple HIG & Material 3 Refactored
+ * - Khung ngắm tài liệu sạch sẽ, không nhãn thông số gây nhiễu
+ * - Bộ điều khiển chụp ảnh / thư viện / tài liệu mẫu tối giản
+ * - Ngăn kéo kết quả văn bản phẳng (#161C28, bo góc 16px)
+ * - Nút bấm duy nhất: "Lưu thành ghi chú"
  */
 export const OCRScannerScreen: React.FC = () => {
   const router = useRouter();
@@ -44,7 +44,7 @@ export const OCRScannerScreen: React.FC = () => {
     try {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert('Cấp quyền máy ảnh', 'Vui lòng cấp quyền máy ảnh trong Cài đặt để MindVault có thể quét tài liệu.');
+        Alert.alert('Cấp quyền máy ảnh', 'Vui lòng cấp quyền máy ảnh trong Cài đặt để quét tài liệu.');
         return;
       }
 
@@ -92,7 +92,7 @@ export const OCRScannerScreen: React.FC = () => {
   };
 
   /**
-   * Quét tài liệu mẫu theo chuyên đề (Văn bản, Hóa đơn, Công thức toán, Bảng)
+   * Quét tài liệu mẫu
    */
   const handleScanSample = async () => {
     setSelectedImageUri(null);
@@ -134,19 +134,19 @@ export const OCRScannerScreen: React.FC = () => {
       const response = await ocrMutation.mutateAsync({
         imageUri: selectedImageUri || `sample://${mode}`,
         mode,
-        noteTitle: `${titlePrefix} [${mode.toUpperCase()}] - ${timeStr}`
+        noteTitle: `${titlePrefix} - ${timeStr}`
       });
 
       if (response.note) {
         Alert.alert(
-          'Đã lưu thành công! 🎉',
-          `Ghi chú "${response.note.title}" đã được lưu an toàn vào cơ sở dữ liệu WatermelonDB cục bộ.`,
+          'Đã lưu thành công',
+          `Ghi chú "${response.note.title}" đã được lưu an toàn.`,
           [
             {
-              text: 'Mở Soạn thảo ngay',
+              text: 'Mở Soạn thảo',
               onPress: () => router.push(`/note-editor/${response.note.id}`)
             },
-            { text: 'Ở lại màn hình' }
+            { text: 'Đóng', style: 'cancel' }
           ]
         );
       }
@@ -155,40 +155,38 @@ export const OCRScannerScreen: React.FC = () => {
     }
   };
 
+  const hasText = editableText.trim().length > 0;
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      {/* Top Header */}
+      {/* Sleek Minimal Header */}
       <View style={[styles.header, { paddingTop: insets.top, height: 56 + insets.top }]}>
-        <Pressable onPress={() => router.back()} style={styles.circleButton}>
-          <Ionicons name="arrow-back" size={20} color={colors.onSurface} />
+        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.iconButton}>
+          <Ionicons name="arrow-back" size={22} color={colors.onSurface} />
         </Pressable>
 
-        <View style={styles.headerTitleColumn}>
-          <Text style={styles.headerTitle}>Quét Tài Liệu OCR</Text>
-          <Text style={styles.headerSubtitle}>Google ML Kit • On-Device AI</Text>
-        </View>
+        <Text style={styles.headerTitle}>Quét tài liệu</Text>
 
-        <View style={styles.headerActions}>
-          <Pressable
-            onPress={() => setFlashOn(!flashOn)}
-            style={[styles.circleButton, flashOn && styles.activeFlash]}
-          >
-            <Ionicons
-              name={flashOn ? 'flash' : 'flash-off-outline'}
-              size={18}
-              color={flashOn ? colors.warning : colors.onSurface}
-            />
-          </Pressable>
-        </View>
+        <Pressable
+          onPress={() => setFlashOn(!flashOn)}
+          hitSlop={12}
+          style={[styles.iconButton, flashOn && styles.activeFlash]}
+        >
+          <Ionicons
+            name={flashOn ? 'flash' : 'flash-off-outline'}
+            size={20}
+            color={flashOn ? '#FBBF24' : colors.onSurfaceVariant}
+          />
+        </Pressable>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: 50 + insets.bottom }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 32 + insets.bottom }]}
       >
-        {/* Scanner Viewfinder with Real/Captured Image Preview */}
+        {/* Scanner Viewfinder */}
         <ViewfinderOverlay
           mode={mode}
           onModeChange={(newMode) => {
@@ -197,35 +195,35 @@ export const OCRScannerScreen: React.FC = () => {
               executeOCR(`sample://${newMode}`, undefined);
             }
           }}
-          detectedBlocksCount={ocrResult ? ocrResult.blocks.length : 5}
+          detectedBlocksCount={ocrResult ? ocrResult.blocks.length : 0}
           imageUri={selectedImageUri}
         />
 
-        {/* 3 Control Action Buttons: Camera, Library, Sample */}
+        {/* 3 Clean Controls: Library, Camera Shutter, Sample */}
         <View style={styles.controlsRow}>
           <Pressable
             onPress={handlePickImage}
             disabled={ocrMutation.isPending}
-            style={({ pressed }) => [styles.controlPill, pressed && { opacity: 0.75 }]}
+            style={({ pressed }) => [styles.sideControlBtn, pressed && { opacity: 0.7 }]}
           >
-            <Ionicons name="images-outline" size={18} color={colors.primaryFixed} />
-            <Text style={styles.controlPillText}>Thư viện</Text>
+            <Ionicons name="images-outline" size={20} color={colors.onSurface} />
+            <Text style={styles.sideControlText}>Thư viện</Text>
           </Pressable>
 
-          {/* Main Shutter Camera Button */}
+          {/* Minimalist Shutter Button */}
           <Pressable
             disabled={ocrMutation.isPending}
             onPress={handleTakePhoto}
             style={({ pressed }) => [
               styles.shutterOuter,
-              pressed && { transform: [{ scale: 0.95 }] }
+              pressed && { transform: [{ scale: 0.94 }] }
             ]}
           >
             <View style={styles.shutterInner}>
               {ocrMutation.isPending ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color="#0B0F17" />
               ) : (
-                <Ionicons name="camera" size={26} color="#FFFFFF" />
+                <Ionicons name="camera" size={24} color="#0B0F17" />
               )}
             </View>
           </Pressable>
@@ -233,69 +231,57 @@ export const OCRScannerScreen: React.FC = () => {
           <Pressable
             onPress={handleScanSample}
             disabled={ocrMutation.isPending}
-            style={({ pressed }) => [styles.controlPill, pressed && { opacity: 0.75 }]}
+            style={({ pressed }) => [styles.sideControlBtn, pressed && { opacity: 0.7 }]}
           >
-            <Ionicons name="flash-outline" size={18} color={colors.secondary} />
-            <Text style={styles.controlPillText}>Quét mẫu</Text>
+            <Ionicons name="document-text-outline" size={20} color={colors.onSurface} />
+            <Text style={styles.sideControlText}>Mẫu</Text>
           </Pressable>
         </View>
 
-        {/* Real-time OCR Results Drawer */}
+        {/* Text Drawer (Flat card #161C28, 16px radius) */}
         <View style={styles.resultsCard}>
           <View style={styles.resultsHeader}>
-            <View style={styles.confidenceRow}>
-              <View style={styles.greenDot} />
-              <Text style={styles.confidenceText}>
-                {ocrResult
-                  ? `Độ chính xác ${(ocrResult.confidence * 100).toFixed(1)}% • ${ocrResult.detectedLanguage || 'Tiếng Việt'}`
-                  : 'Sẵn sàng nhận diện on-device (ML Kit)'}
-              </Text>
-            </View>
-
-            <View style={styles.offlinePill}>
-              <Ionicons name="shield-checkmark-outline" size={12} color={colors.tertiary} />
-              <Text style={styles.offlinePillText}>100% On-Device</Text>
-            </View>
+            <Text style={styles.resultsTitle}>Văn bản nhận diện</Text>
+            {ocrMutation.isPending && (
+              <View style={styles.pendingRow}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={styles.pendingText}>Đang nhận diện...</Text>
+              </View>
+            )}
           </View>
 
-          {/* Editable Text Output Box */}
+          {/* Editable Text Area */}
           <View style={styles.textBox}>
             <TextInput
               style={styles.rawTextInput}
               multiline
-              value={editableText || (ocrResult ? ocrResult.rawText : 'Chạm "Chụp ảnh", "Thư viện" hoặc "Quét mẫu" để trích xuất văn bản tài liệu...')}
+              value={editableText || (ocrResult ? ocrResult.rawText : '')}
               onChangeText={setEditableText}
-              placeholder="Chưa có văn bản nào được trích xuất..."
-              placeholderTextColor={colors.outline}
+              placeholder="Chưa có văn bản nào được quét. Chạm camera để chụp hoặc chọn ảnh từ thư viện..."
+              placeholderTextColor={colors.onSurfaceVariant}
               textAlignVertical="top"
             />
           </View>
 
-          {/* Action Buttons */}
-          <View style={styles.cardActionsRow}>
-            <Pressable
-              onPress={handleSaveToNote}
-              disabled={ocrMutation.isPending}
-              style={({ pressed }) => [
-                styles.primaryActionBtn,
-                pressed && { opacity: 0.85 },
-                ocrMutation.isPending && { opacity: 0.6 }
-              ]}
-            >
-              <Ionicons name="document-text-outline" size={16} color="#FFFFFF" />
-              <Text style={styles.primaryActionBtnText}>
-                {ocrMutation.isPending ? 'Đang lưu...' : 'Lưu vào Ghi chú'}
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => router.push('/tasks')}
-              style={({ pressed }) => [styles.secondaryActionBtn, pressed && { opacity: 0.85 }]}
-            >
-              <Ionicons name="sparkles-outline" size={16} color={colors.primary} />
-              <Text style={styles.secondaryActionBtnText}>Trích Việc (AI)</Text>
-            </Pressable>
-          </View>
+          {/* Single Action Button: "Lưu thành ghi chú" */}
+          <Pressable
+            onPress={handleSaveToNote}
+            disabled={ocrMutation.isPending || !hasText}
+            style={({ pressed }) => [
+              styles.primarySaveBtn,
+              (!hasText || ocrMutation.isPending) && styles.disabledSaveBtn,
+              pressed && hasText && { opacity: 0.85 }
+            ]}
+          >
+            {ocrMutation.isPending ? (
+              <ActivityIndicator size="small" color="#0B0F17" />
+            ) : (
+              <Ionicons name="bookmark-outline" size={18} color={hasText ? '#0B0F17' : colors.onSurfaceVariant} />
+            )}
+            <Text style={[styles.primarySaveText, !hasText && styles.disabledSaveText]}>
+              {ocrMutation.isPending ? 'Đang lưu...' : 'Lưu thành ghi chú'}
+            </Text>
+          </Pressable>
         </View>
       </ScrollView>
     </View>
@@ -312,89 +298,70 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: colors.outlineVariant
   },
-  circleButton: {
-    width: 38,
-    height: 38,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceContainer,
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.outlineVariant
+    backgroundColor: colors.surfaceContainer
   },
   activeFlash: {
-    backgroundColor: 'rgba(245, 158, 11, 0.2)',
-    borderColor: colors.warning
-  },
-  headerTitleColumn: {
-    alignItems: 'center'
+    backgroundColor: 'rgba(251, 191, 36, 0.15)',
+    borderWidth: 1,
+    borderColor: '#FBBF24'
   },
   headerTitle: {
-    ...typography.headlineSm,
+    ...typography.titleMedium,
     color: colors.onSurface,
-    fontWeight: '700'
-  },
-  headerSubtitle: {
-    ...typography.labelSm,
-    color: colors.onSurfaceVariant
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8
+    fontWeight: '600'
   },
   scrollContent: {
-    paddingBottom: 40
+    paddingBottom: 32
   },
   controlsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 20,
-    marginVertical: 14
+    gap: 28,
+    marginVertical: 18
   },
-  controlPill: {
-    flexDirection: 'row',
+  sideControlBtn: {
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceContainer,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant
+    justifyContent: 'center',
+    gap: 4,
+    width: 64
   },
-  controlPillText: {
-    ...typography.labelMd,
-    color: colors.onSurface,
-    fontWeight: '600'
+  sideControlText: {
+    ...typography.labelSm,
+    color: colors.onSurfaceVariant,
+    fontWeight: '500'
   },
   shutterOuter: {
     width: 68,
     height: 68,
-    borderRadius: radius.full,
-    borderWidth: 4,
-    borderColor: colors.secondary,
+    borderRadius: 34,
+    borderWidth: 3,
+    borderColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(56, 189, 248, 0.15)'
+    backgroundColor: 'transparent'
   },
   shutterInner: {
-    width: 52,
-    height: 52,
-    borderRadius: radius.full,
-    backgroundColor: colors.secondary,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center'
   },
   resultsCard: {
     marginHorizontal: 16,
-    marginTop: 8,
-    borderRadius: radius.xl,
+    marginTop: 6,
+    borderRadius: 16,
     backgroundColor: colors.surfaceContainer,
     borderWidth: 1,
     borderColor: colors.outlineVariant,
@@ -406,86 +373,54 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 12
   },
-  confidenceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8
-  },
-  greenDot: {
-    width: 8,
-    height: 8,
-    borderRadius: radius.full,
-    backgroundColor: colors.tertiary
-  },
-  confidenceText: {
-    ...typography.labelMd,
+  resultsTitle: {
+    ...typography.titleMedium,
     color: colors.onSurface,
     fontWeight: '600'
   },
-  offlinePill: {
+  pendingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: radius.full,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)'
+    gap: 6
   },
-  offlinePillText: {
+  pendingText: {
     ...typography.labelSm,
-    color: colors.tertiary,
-    fontWeight: '700'
+    color: colors.primary
   },
   textBox: {
-    backgroundColor: colors.surfaceLow,
-    borderRadius: radius.lg,
-    padding: 12,
+    backgroundColor: colors.background,
+    borderRadius: 12,
+    padding: 14,
     minHeight: 140,
-    maxHeight: 240,
+    maxHeight: 220,
     borderWidth: 1,
     borderColor: colors.outlineVariant,
     marginBottom: 16
   },
   rawTextInput: {
-    ...typography.bodyMd,
+    ...typography.bodyMedium,
     color: colors.onSurface,
     lineHeight: 22,
     flex: 1
   },
-  cardActionsRow: {
-    flexDirection: 'row',
-    gap: 12
-  },
-  primaryActionBtn: {
-    flex: 2,
+  primarySaveBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
     backgroundColor: colors.primary,
-    paddingVertical: 12,
-    borderRadius: radius.full
+    paddingVertical: 14,
+    borderRadius: 12
   },
-  primaryActionBtnText: {
-    ...typography.labelLg,
-    color: '#FFFFFF',
-    fontWeight: '700'
+  disabledSaveBtn: {
+    backgroundColor: colors.surfaceContainerHigh
   },
-  secondaryActionBtn: {
-    flex: 1.2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(99, 102, 241, 0.15)',
-    paddingVertical: 12,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(99, 102, 241, 0.4)'
+  primarySaveText: {
+    ...typography.labelLarge,
+    color: '#0B0F17',
+    fontWeight: '600'
   },
-  secondaryActionBtnText: {
-    ...typography.labelMd,
-    color: colors.primaryFixed,
-    fontWeight: '700'
+  disabledSaveText: {
+    color: colors.onSurfaceVariant
   }
 });

@@ -2,23 +2,30 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, TaskPriority } from '../../domain/entities/Task';
-import { colors, typography, radius } from '../theme/colors';
+import { colors, typography } from '../theme/colors';
 
 interface TaskItemProps {
   task: Task;
+  parentNoteTitle?: string;
   onToggleComplete: () => void;
   onPress?: () => void;
   onDelete?: () => void;
 }
 
+/**
+ * TaskItem - Minimalist Apple HIG & Material 3 Refactored
+ * - Thẻ phẳng #161C28, bo góc 16px
+ * - Checkbox gọn gàng (xanh ngọc #10B981 khi hoàn thành)
+ * - Tên ghi chú gốc đi kèm (nếu có)
+ * - Nút xóa tinh tế
+ */
 export const TaskItem: React.FC<TaskItemProps> = ({
   task,
+  parentNoteTitle,
   onToggleComplete,
   onPress,
   onDelete
 }) => {
-  const priorityConfig = getPriorityConfig(task.priority);
-
   return (
     <Pressable
       onPress={onPress}
@@ -28,17 +35,17 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         pressed && { opacity: 0.85 }
       ]}
     >
-      {/* Checkbox Touch Target (min 48x48) */}
+      {/* Checkbox */}
       <Pressable
-        hitSlop={8}
+        hitSlop={12}
         onPress={onToggleComplete}
         style={({ pressed }) => [
           styles.checkbox,
           task.isCompleted && styles.checkedCheckbox,
-          pressed && { transform: [{ scale: 0.92 }] }
+          pressed && { transform: [{ scale: 0.9 }] }
         ]}
       >
-        {task.isCompleted && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
+        {task.isCompleted && <Ionicons name="checkmark" size={14} color="#0B0F17" />}
       </Pressable>
 
       {/* Task Content */}
@@ -50,54 +57,28 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           {task.title}
         </Text>
 
-        {task.description ? (
-          <Text style={styles.description} numberOfLines={1}>
-            {task.description}
-          </Text>
-        ) : null}
+        {/* Note Source and Metadata Row */}
+        <View style={styles.metaRow}>
+          {parentNoteTitle ? (
+            <View style={styles.noteSourceTag}>
+              <Ionicons name="document-text-outline" size={12} color={colors.primary} />
+              <Text style={styles.noteSourceText} numberOfLines={1}>
+                {parentNoteTitle}
+              </Text>
+            </View>
+          ) : null}
 
-        {/* Badges Row */}
-        <View style={styles.badgeRow}>
-          {/* Priority Pill */}
-          <View style={[styles.priorityBadge, { backgroundColor: priorityConfig.bg }]}>
-            <Text style={[styles.priorityText, { color: priorityConfig.color }]}>
-              {priorityConfig.label}
-            </Text>
-          </View>
+          {task.source === 'ai_extracted' && !parentNoteTitle && (
+            <View style={styles.aiTag}>
+              <Ionicons name="sparkles" size={11} color={colors.primary} />
+              <Text style={styles.aiTagText}>Từ AI</Text>
+            </View>
+          )}
 
-          {/* Source Pill */}
-          <View style={styles.sourceBadge}>
-            <Ionicons
-              name={
-                task.source === 'ai_extracted'
-                  ? 'sparkles'
-                  : task.source === 'ocr'
-                  ? 'scan'
-                  : 'person-outline'
-              }
-              size={11}
-              color={
-                task.source === 'ai_extracted'
-                  ? colors.primary
-                  : task.source === 'ocr'
-                  ? colors.secondary
-                  : colors.onSurfaceVariant
-              }
-            />
-            <Text style={styles.sourceText}>
-              {task.source === 'ai_extracted'
-                ? 'Từ AI'
-                : task.source === 'ocr'
-                ? 'Từ OCR'
-                : 'Tự tạo'}
-            </Text>
-          </View>
-
-          {/* Due date if present */}
           {task.dueDate && (
-            <View style={styles.dueRow}>
+            <View style={styles.dateTag}>
               <Ionicons name="calendar-outline" size={11} color={colors.onSurfaceVariant} />
-              <Text style={styles.dueText}>
+              <Text style={styles.dateText}>
                 {new Date(task.dueDate).toLocaleDateString('vi-VN', {
                   day: 'numeric',
                   month: 'numeric'
@@ -108,129 +89,108 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         </View>
       </View>
 
-      {/* Delete / Actions */}
+      {/* Delete button */}
       {onDelete && (
         <Pressable hitSlop={12} onPress={onDelete} style={styles.deleteButton}>
-          <Ionicons name="trash-outline" size={18} color={colors.onSurfaceVariant} />
+          <Ionicons name="trash-outline" size={16} color={colors.onSurfaceVariant} />
         </Pressable>
       )}
     </Pressable>
   );
 };
 
-function getPriorityConfig(priority: TaskPriority) {
-  switch (priority) {
-    case 'high':
-      return {
-        label: 'Ưu tiên cao',
-        color: '#F87171',
-        bg: 'rgba(239, 68, 68, 0.15)'
-      };
-    case 'medium':
-      return {
-        label: 'Trung bình',
-        color: '#FBBF24',
-        bg: 'rgba(245, 158, 11, 0.15)'
-      };
-    case 'low':
-    default:
-      return {
-        label: 'Thấp',
-        color: '#94A3B8',
-        bg: 'rgba(148, 163, 184, 0.12)'
-      };
-  }
-}
-
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.surfaceContainer,
-    borderRadius: radius.lg,
+    borderRadius: 16,
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    minHeight: 56
+    borderColor: colors.outlineVariant
   },
   completedContainer: {
-    opacity: 0.6,
-    backgroundColor: colors.surfaceLow
+    opacity: 0.5,
+    backgroundColor: 'rgba(22, 28, 40, 0.6)'
   },
   checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: radius.sm,
-    borderWidth: 2,
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
     borderColor: colors.outline,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
-    marginTop: 2
+    marginRight: 12
   },
   checkedCheckbox: {
-    backgroundColor: colors.tertiary,
-    borderColor: colors.tertiary
+    backgroundColor: colors.primary,
+    borderColor: colors.primary
   },
   contentColumn: {
     flex: 1
   },
   taskTitle: {
-    ...typography.bodyLg,
+    ...typography.bodyMedium,
     color: colors.onSurface,
-    fontWeight: '600'
+    fontWeight: '500',
+    fontSize: 15
   },
   completedTaskTitle: {
     textDecorationLine: 'line-through',
     color: colors.onSurfaceVariant
   },
-  description: {
-    ...typography.bodySm,
-    color: colors.onSurfaceVariant,
-    marginTop: 2
-  },
-  badgeRow: {
+  metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: 8,
-    marginTop: 8
+    marginTop: 6
   },
-  priorityBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radius.full
-  },
-  priorityText: {
-    ...typography.labelSm,
-    fontWeight: '700'
-  },
-  sourceBadge: {
+  noteSourceTag: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: colors.surfaceContainerHigh,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: radius.full
+    borderRadius: 6,
+    maxWidth: 200
   },
-  sourceText: {
+  noteSourceText: {
     ...typography.labelSm,
-    color: colors.onSurfaceVariant,
-    fontWeight: '500'
+    color: colors.primary,
+    fontWeight: '500',
+    fontSize: 11
   },
-  dueRow: {
+  aiTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6
+  },
+  aiTagText: {
+    ...typography.labelSm,
+    color: colors.primary,
+    fontWeight: '500',
+    fontSize: 11
+  },
+  dateTag: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4
   },
-  dueText: {
+  dateText: {
     ...typography.labelSm,
-    color: colors.onSurfaceVariant
+    color: colors.onSurfaceVariant,
+    fontSize: 11
   },
   deleteButton: {
     padding: 6,
-    marginLeft: 6
+    marginLeft: 8
   }
 });
