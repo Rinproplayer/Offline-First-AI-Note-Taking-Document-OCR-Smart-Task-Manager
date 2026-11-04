@@ -18,6 +18,7 @@ web-build/
 # Native builds
 android/
 ios/
+*.apk
 
 # Logs & temp
 npm-debug.log*
