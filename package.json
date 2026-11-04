@@ -9,7 +9,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "verify:domain": "node scripts/verify_domain.js"
+    "verify:domain": "node scripts/verify_domain.js",
+    "build:apk": "eas build -p android --profile preview",
+    "build:apk:prod": "eas build -p android --profile production"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
