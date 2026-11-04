@@ -7,7 +7,8 @@ import {
   Pressable,
   ScrollView,
   StatusBar,
-  RefreshControl
+  RefreshControl,
+  Alert
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,7 +18,7 @@ import { MaterialHeader } from '../components/MaterialHeader';
 import { NoteCard } from '../components/NoteCard';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useFilterStore } from '../stores/useFilterStore';
-import { useNotes } from '../hooks/useNotesQuery';
+import { useNotes, useDeleteNote } from '../hooks/useNotesQuery';
 import { useTasks, useToggleTaskComplete } from '../hooks/useTasksQuery';
 import { Note } from '../../domain/entities/Note';
 
@@ -38,6 +39,7 @@ export const HomeScreen: React.FC = () => {
   const { data: notes = [], isLoading, refetch } = useNotes(searchQuery, selectedTag);
   const { data: allTasks = [] } = useTasks();
   const toggleCompleteMutation = useToggleTaskComplete();
+  const deleteNoteMutation = useDeleteNote();
 
   // Lấy tối đa 3 nhiệm vụ hôm nay
   const todayTasks = useMemo(() => {
@@ -148,6 +150,20 @@ export const HomeScreen: React.FC = () => {
             <NoteCard
               note={item}
               onPress={() => router.push(`/note-editor/${item.id}`)}
+              onDelete={(id) => {
+                Alert.alert(
+                  'Xóa ghi chú',
+                  `Bạn có chắc chắn muốn xóa "${item.title || 'ghi chú này'}" không?`,
+                  [
+                    { text: 'Hủy', style: 'cancel' },
+                    {
+                      text: 'Xóa',
+                      style: 'destructive',
+                      onPress: () => deleteNoteMutation.mutate(id)
+                    }
+                  ]
+                );
+              }}
             />
           )}
           ListHeaderComponent={renderHeader}

@@ -39,24 +39,7 @@ export function useToggleTaskComplete() {
     mutationFn: async ({ id, isCompleted }: { id: string; isCompleted: boolean }) => {
       return watermelonTaskRepository.updateTask(id, { isCompleted });
     },
-    onMutate: async ({ id, isCompleted }) => {
-      // Optimistic update
-      await queryClient.cancelQueries({ queryKey: ['tasks'] });
-      const previousTasks = queryClient.getQueryData<Task[]>(['tasks']);
-      if (previousTasks) {
-        queryClient.setQueryData<Task[]>(
-          ['tasks'],
-          previousTasks.map((t) => (t.id === id ? { ...t, isCompleted } : t))
-        );
-      }
-      return { previousTasks };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousTasks) {
-        queryClient.setQueryData(['tasks'], context.previousTasks);
-      }
-    },
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     }
   });

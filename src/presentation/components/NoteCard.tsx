@@ -1,5 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import React, { useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Animated,
+  PanResponder
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Note } from '../../domain/entities/Note';
 import { colors, typography } from '../theme/colors';
@@ -7,45 +14,141 @@ import { colors, typography } from '../theme/colors';
 interface NoteCardProps {
   note: Note;
   onPress: () => void;
-  onLongPress?: () => void;
+  onDelete?: (id: string) => void;
 }
 
-export const NoteCard: React.FC<NoteCardProps> = ({ note, onPress, onLongPress }) => {
+/**
+ * NoteCard - Thiết kế Tối giản Hiện đại Apple HIG
+ * - Hỗ trợ vuốt sang trái (Swipe-to-delete) mượt mà làm lộ nút Xóa màu đỏ (#EF4444).
+ * - Hiển thị tiêu đề, 1 dòng tóm tắt ngắn và thời gian sửa đổi.
+ */
+export const NoteCard: React.FC<NoteCardProps> = ({ note, onPress, onDelete }) => {
   const timeAgo = formatTimeAgo(note.updatedAt);
+  const translateX = useRef(new Animated.Value(0)).current;
+  const isOpen = useRef(false);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        // Chỉ kích hoạt khi vuốt ngang có chủ đích (không chặn cuộn dọc danh sách)
+        return (
+          Math.abs(gestureState.dx) > 12 &&
+          Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.5
+        );
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dx < 0) {
+          // Vuốt sang trái tối đa -120px
+          translateX.setValue(Math.max(gestureState.dx, -120));
+        } else if (isOpen.current && gestureState.dx > 0) {
+          // Kéo đóng lại
+          translateX.setValue(Math.min(-80 + gestureState.dx, 0));
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dx < -40) {
+          // Mở nút xóa màu đỏ
+          Animated.spring(translateX, {
+            toValue: -80,
+            useNativeDriver: true,
+            bounciness: 4,
+            speed: 14
+          }).start(() => {
+            isOpen.current = true;
+          });
+        } else {
+          // Đóng lại
+          Animated.spring(translateX, {
+            toValue: 0,
+            useNativeDriver: true,
+            bounciness: 4,
+            speed: 14
+          }).start(() => {
+            isOpen.current = false;
+          });
+        }
+      }
+    })
+  ).current;
+
+  const handleCardPress = () => {
+    if (isOpen.current) {
+      Animated.spring(translateX, {
+        toValue: 0,
+        useNativeDriver: true,
+        bounciness: 4,
+        speed: 14
+      }).start(() => {
+        isOpen.current = false;
+      });
+    } else {
+      onPress();
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(note.id);
+    }
+  };
 
   return (
-    <Pressable
-      onPress={onPress}
-      onLongPress={onLongPress}
-      style={({ pressed }) => [
-        styles.card,
-        note.isPinned && styles.pinnedCard,
-        pressed && styles.pressedCard
-      ]}
-    >
-      {/* Title & Time Row */}
-      <View style={styles.topRow}>
-        <View style={styles.titleContainer}>
-          {note.isPinned && (
-            <Ionicons name="pin" size={13} color={colors.primary} style={styles.pinIcon} />
-          )}
-          <Text style={styles.title} numberOfLines={1}>
-            {note.title || 'Ghi chú không tiêu đề'}
-          </Text>
-        </View>
-
-        <Text style={styles.timeText}>{timeAgo}</Text>
+    <View style={styles.swipeContainer}>
+      {/* Background Red Delete Button */}
+      <View style={styles.deleteBackground}>
+        <Pressable
+          onPress={handleDelete}
+          style={({ pressed }) => [styles.deleteBtn, pressed && { opacity: 0.8 }]}
+        >
+          <Ionicons name="trash-outline" size={22} color="#FFFFFF" />
+          <Text style={styles.deleteBtnText}>Xóa</Text>
+        </Pressable>
       </View>
 
-      {/* 1 Short Content Preview Line */}
-      <Text style={styles.contentPreview} numberOfLines={1}>
-        {note.content ? note.content.replace(/\n+/g, ' ') : 'Chưa có nội dung...'}
-      </Text>
-    </Pressable>
+      {/* Foreground Sliding Note Card */}
+      <Animated.View
+        style={[
+          styles.cardWrapper,
+          {
+            transform: [{ translateX }]
+          }
+        ]}
+        {...panResponder.panHandlers}
+      >
+        <Pressable
+          onPress={handleCardPress}
+          style={({ pressed }) => [
+            styles.card,
+            note.isPinned && styles.pinnedCard,
+            pressed && styles.pressedCard
+          ]}
+        >
+          {/* Title & Time Row */}
+          <View style={styles.topRow}>
+            <View style={styles.titleContainer}>
+              {note.isPinned && (
+                <Ionicons name="pin" size={13} color={colors.primary} style={styles.pinIcon} />
+              )}
+              <Text style={styles.title} numberOfLines={1}>
+                {note.title || 'Ghi chú không tiêu đề'}
+              </Text>
+            </View>
+
+            <Text style={styles.timeText}>{timeAgo}</Text>
+          </View>
+
+          {/* 1 Short Content Preview Line */}
+          <Text style={styles.contentPreview} numberOfLines={1}>
+            {note.content ? note.content.replace(/\n+/g, ' ') : 'Chưa có nội dung...'}
+          </Text>
+        </Pressable>
+      </Animated.View>
+    </View>
   );
 };
 
 function formatTimeAgo(date: Date): string {
+  if (!date) return 'Vừa xong';
   const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
   if (seconds < 60) return 'Vừa xong';
   const minutes = Math.floor(seconds / 60);
@@ -57,21 +160,51 @@ function formatTimeAgo(date: Date): string {
 }
 
 const styles = StyleSheet.create({
+  swipeContainer: {
+    position: 'relative',
+    marginBottom: 10,
+    borderRadius: 16,
+    overflow: 'hidden'
+  },
+  deleteBackground: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: 76,
+    backgroundColor: '#EF4444', // Red button
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  deleteBtn: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 2
+  },
+  deleteBtnText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '700'
+  },
+  cardWrapper: {
+    backgroundColor: colors.background
+  },
   card: {
     backgroundColor: '#161C28', // Flat card #161C28
     borderRadius: 16, // Bo góc 16px
     paddingHorizontal: 16,
     paddingVertical: 14,
-    marginBottom: 10,
     borderWidth: 1,
     borderColor: '#222B3D'
   },
   pinnedCard: {
-    borderColor: 'rgba(99, 102, 241, 0.35)'
+    borderColor: 'rgba(16, 185, 129, 0.35)'
   },
   pressedCard: {
-    transform: [{ scale: 0.99 }],
-    opacity: 0.85
+    opacity: 0.9
   },
   topRow: {
     flexDirection: 'row',
@@ -102,7 +235,6 @@ const styles = StyleSheet.create({
   contentPreview: {
     ...typography.bodySm,
     color: colors.onSurfaceVariant,
-    fontSize: 13,
     lineHeight: 18
   }
 });

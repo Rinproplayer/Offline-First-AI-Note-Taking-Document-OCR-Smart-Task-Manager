@@ -16,7 +16,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, typography, radius } from '../theme/colors';
 import { AIAssistantBottomSheet } from '../components/AIAssistantBottomSheet';
-import { useNoteById, useUpdateNote, useCreateNote } from '../hooks/useNotesQuery';
+import { useNoteById, useUpdateNote, useCreateNote, useDeleteNote } from '../hooks/useNotesQuery';
 import { useAISummaryStream } from '../hooks/useAISummaryStream';
 import { useAIStore } from '../stores/useAIStore';
 import { AIPromptType } from '../../domain/repositories/IAIService';
@@ -38,6 +38,7 @@ export const NoteEditorScreen: React.FC = () => {
   const { data: existingNote } = useNoteById(isNew ? '' : (id as string));
   const updateNoteMutation = useUpdateNote();
   const createNoteMutation = useCreateNote();
+  const deleteNoteMutation = useDeleteNote();
 
   // Zustand & Streaming LLM
   const { startStream, streamActionItems } = useAISummaryStream();
@@ -48,17 +49,15 @@ export const NoteEditorScreen: React.FC = () => {
   const [content, setContent] = useState('');
   const [isSaved, setIsSaved] = useState(true);
 
-  // Nạp dữ liệu ghi chú khi mở
+  // Nạp dữ liệu ghi chú khi mở (mới thì để trống 100%)
   useEffect(() => {
     if (existingNote) {
       setTitle(existingNote.title);
       setContent(existingNote.content);
       setIsSaved(true);
     } else if (isNew) {
-      setTitle('Biên bản họp Capstone - Tích hợp Supabase & WatermelonDB');
-      setContent(
-        '1. Mục tiêu kiến trúc:\n- Tuân thủ nghiêm ngặt 3 lớp: Domain, Data, Presentation.\n- Domain hoàn toàn độc lập, không import UI hay SDK bên ngoài.\n\n2. Xử lý dữ liệu Offline-First:\n- WatermelonDB lưu trữ trực tiếp trên máy với SQLite adapter.\n- Supabase PostgreSQL đồng bộ hai chiều khi có mạng qua RLS.\n\n3. Trợ lý AI và OCR:\n- Google ML Kit nhận diện văn bản tiếng Việt on-device dưới 250ms.\n- LLM SSE client phát luồng tóm tắt và trích xuất việc cần làm.'
-      );
+      setTitle('');
+      setContent('');
       setIsSaved(false);
     }
   }, [existingNote, isNew]);
@@ -182,8 +181,34 @@ export const NoteEditorScreen: React.FC = () => {
           <Text style={styles.statusText}>{isSaved ? 'Đã lưu' : 'Chưa lưu'}</Text>
         </View>
 
-        {/* Right Actions: AI & Save */}
+        {/* Right Actions: AI, Save & Delete */}
         <View style={styles.actionsRow}>
+          {!isNew && (
+            <Pressable
+              hitSlop={12}
+              onPress={() => {
+                Alert.alert(
+                  'Xóa ghi chú',
+                  'Bạn có chắc chắn muốn xóa ghi chú này không?',
+                  [
+                    { text: 'Hủy', style: 'cancel' },
+                    {
+                      text: 'Xóa',
+                      style: 'destructive',
+                      onPress: async () => {
+                        await deleteNoteMutation.mutateAsync(id as string);
+                        router.back();
+                      }
+                    }
+                  ]
+                );
+              }}
+              style={({ pressed }) => [styles.deleteBtn, pressed && { opacity: 0.6 }]}
+            >
+              <Ionicons name="trash-outline" size={18} color="#EF4444" />
+            </Pressable>
+          )}
+
           <Pressable
             onPress={() => handleOpenAI('summary')}
             style={({ pressed }) => [styles.aiPill, pressed && { opacity: 0.75 }]}
@@ -317,6 +342,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10
+  },
+  deleteBtn: {
+    padding: 6,
+    marginRight: 2
   },
   aiPill: {
     flexDirection: 'row',

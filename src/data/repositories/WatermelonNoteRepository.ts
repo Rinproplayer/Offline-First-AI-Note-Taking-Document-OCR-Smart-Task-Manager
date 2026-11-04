@@ -29,14 +29,10 @@ export class WatermelonNoteRepository implements INoteRepository {
         )
         .fetch();
 
-      if (records.length === 0) {
-        return this.getFallbackSeedNotes();
-      }
-
       return records.map((record) => record.toEntity());
     } catch (error) {
       console.warn('[WatermelonNoteRepository] Lỗi đọc WatermelonDB SQLite:', error);
-      return this.getFallbackSeedNotes();
+      return [];
     }
   }
 
@@ -51,8 +47,7 @@ export class WatermelonNoteRepository implements INoteRepository {
       }
       return record.toEntity();
     } catch {
-      const fallback = this.getFallbackSeedNotes().find((n) => n.id === id);
-      return fallback || null;
+      return null;
     }
   }
 
@@ -124,8 +119,11 @@ export class WatermelonNoteRepository implements INoteRepository {
     } catch (error) {
       console.warn('[WatermelonNoteRepository] Lỗi cập nhật ghi chú:', error);
       const existing = await this.getNoteById(id);
+      if (!existing) {
+        throw new Error(`Không tìm thấy ghi chú với id: ${id}`);
+      }
       return {
-        ...(existing || this.getFallbackSeedNotes()[0]),
+        ...existing,
         ...updates,
         updatedAt: new Date(),
         syncStatus: 'pending'
@@ -134,15 +132,14 @@ export class WatermelonNoteRepository implements INoteRepository {
   }
 
   /**
-   * Xoá ghi chú theo chuẩn WatermelonDB Sync.
-   * Sử dụng `markAsDeleted()` để WatermelonDB giữ lại ID trong hàng đợi xóa
-   * và đẩy lệnh xoá lên Supabase trong lần đồng bộ tiếp theo.
+   * Xoá ghi chú theo chuẩn WatermelonDB.
    */
   async deleteNote(id: string): Promise<void> {
     try {
       const record = await notesCollection.find(id);
       await database.write(async () => {
         await record.markAsDeleted();
+        await record.destroyPermanently();
       });
 
       this.triggerBackgroundSync();
@@ -183,54 +180,6 @@ export class WatermelonNoteRepository implements INoteRepository {
         // Dữ liệu vẫn an toàn tại WatermelonDB khi không có mạng
       }
     }, 1500);
-  }
-
-  /**
-   * Dữ liệu mẫu khởi tạo khi ứng dụng được mở lần đầu
-   */
-  private getFallbackSeedNotes(): Note[] {
-    return [
-      {
-        id: 'note_1',
-        title: 'Kiến trúc Clean Architecture & WatermelonDB',
-        content:
-          'Triển khai mô hình 3 lớp nghiêm ngặt (Domain, Data, Presentation) cho dự án Capstone MindVault. Sử dụng WatermelonDB đảm bảo đọc ghi cực nhanh với SQLite cục bộ, sau đó đồng bộ hoá lên Supabase.',
-        tags: ['CleanArchitecture', 'OfflineFirst', 'Capstone'],
-        isPinned: true,
-        isArchived: false,
-        hasOcr: false,
-        createdAt: new Date(Date.now() - 1000 * 60 * 15),
-        updatedAt: new Date(Date.now() - 1000 * 60 * 10),
-        syncStatus: 'synced'
-      },
-      {
-        id: 'note_2',
-        title: 'Bài giảng Xử lý Ngôn ngữ Tự nhiên & LLMs',
-        content:
-          'Nghiên cứu cơ chế Attention trong Transformer, các kỹ thuật tối ưu hóa độ trễ phản hồi SSE khi truyền luồng dữ liệu (streaming). Kết hợp bộ nhận diện OCR tiếng Việt trên thiết bị bằng Google ML Kit.',
-        tags: ['AI', 'NLP', 'Research'],
-        isPinned: false,
-        isArchived: false,
-        hasOcr: true,
-        ocrRawText: 'Mô hình Transformer và ứng dụng trong trích xuất văn bản tài liệu học thuật.',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-        updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 20),
-        syncStatus: 'synced'
-      },
-      {
-        id: 'note_3',
-        title: 'Kế hoạch Capstone Project - MindVault',
-        content:
-          'Các mốc quan trọng: 1. Hoàn thành thiết kế Mobile UI trên Stitch. 2. Triển khai kiến trúc 3 lớp không dính UI trong Domain. 3. Thử nghiệm tốc độ đạt 60fps với FlashList trên Android.',
-        tags: ['Capstone', 'Task', 'Đại học'],
-        isPinned: false,
-        isArchived: false,
-        hasOcr: false,
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
-        updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 40),
-        syncStatus: 'synced'
-      }
-    ];
   }
 }
 

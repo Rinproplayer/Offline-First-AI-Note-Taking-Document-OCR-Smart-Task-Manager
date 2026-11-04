@@ -7,8 +7,14 @@ import { TaskModel } from '../watermelon/models/TaskModel';
 export class WatermelonTaskRepository implements ITaskRepository {
   async getTasks(filter?: TaskFilterOptions): Promise<Task[]> {
     try {
-      const records = await tasksCollection.query(Q.sortBy('created_at', Q.desc)).fetch();
-      let tasks = records.length > 0 ? records.map((r) => r.toEntity()) : this.getSeedTasks();
+      const records = await tasksCollection
+        .query(
+          Q.where('_status', Q.notEq('deleted')),
+          Q.sortBy('created_at', Q.desc)
+        )
+        .fetch();
+
+      let tasks = records.map((r) => r.toEntity());
 
       if (filter) {
         if (filter.isCompleted !== undefined) {
@@ -22,83 +28,70 @@ export class WatermelonTaskRepository implements ITaskRepository {
         }
         if (filter.dueDateCategory === 'today') {
           const now = new Date();
-          tasks = tasks.filter((t) => t.dueDate && t.dueDate.toDateString() === now.toDateString());
+          tasks = tasks.filter((t) => {
+            if (!t.dueDate) return true;
+            const d = new Date(t.dueDate);
+            return d.toDateString() === now.toDateString() || d.getTime() <= now.getTime();
+          });
         } else if (filter.dueDateCategory === 'upcoming') {
           const now = new Date();
-          tasks = tasks.filter((t) => t.dueDate && t.dueDate.getTime() > now.getTime());
+          tasks = tasks.filter((t) => t.dueDate && new Date(t.dueDate).getTime() > now.getTime());
         }
       }
 
       return tasks;
     } catch {
-      let tasks = this.getSeedTasks();
-      if (filter?.isCompleted !== undefined) {
-        tasks = tasks.filter((t) => t.isCompleted === filter.isCompleted);
-      }
-      return tasks;
+      return [];
     }
   }
 
   async getTaskById(id: string): Promise<Task | null> {
     try {
       const record = await tasksCollection.find(id);
-      return record ? record.toEntity() : null;
+      if (!record || (record as any)._status === 'deleted') {
+        return null;
+      }
+      return record.toEntity();
     } catch {
-      return this.getSeedTasks().find((t) => t.id === id) || null;
+      return null;
     }
   }
 
   async createTask(taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'syncStatus'>): Promise<Task> {
-    try {
-      let createdModel!: TaskModel;
-      await database.write(async () => {
-        createdModel = await tasksCollection.create((model) => {
-          model.noteId = taskData.noteId;
-          model.title = taskData.title;
-          model.description = taskData.description;
-          model.status = taskData.status || (taskData.isCompleted ? 'completed' : 'pending');
-          model.isCompleted = !!taskData.isCompleted;
-          model.priority = taskData.priority;
-          model.dueDate = taskData.dueDate;
-          model.source = taskData.source;
-          model.localSyncStatus = 'pending';
-        });
+    let createdModel!: TaskModel;
+    await database.write(async () => {
+      createdModel = await tasksCollection.create((model) => {
+        model.noteId = taskData.noteId;
+        model.title = taskData.title;
+        model.description = taskData.description;
+        model.status = taskData.status || (taskData.isCompleted ? 'completed' : 'pending');
+        model.isCompleted = !!taskData.isCompleted;
+        model.priority = taskData.priority || 'medium';
+        model.dueDate = taskData.dueDate;
+        model.source = taskData.source || 'manual';
+        model.localSyncStatus = 'pending';
       });
-      return createdModel.toEntity();
-    } catch {
-      return {
-        id: `task_${Date.now()}`,
-        ...taskData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        syncStatus: 'pending'
-      };
-    }
+    });
+    return createdModel.toEntity();
   }
 
   async updateTask(id: string, updates: Partial<Task>): Promise<Task> {
-    try {
-      const model = await tasksCollection.find(id);
-      await database.write(async () => {
-        await model.update((m) => {
-          if (updates.title !== undefined) m.title = updates.title;
-          if (updates.description !== undefined) m.description = updates.description;
-          if (updates.isCompleted !== undefined) m.isCompleted = updates.isCompleted;
-          if (updates.priority !== undefined) m.priority = updates.priority;
-          if (updates.dueDate !== undefined) m.dueDate = updates.dueDate;
-          if (updates.status !== undefined) m.status = updates.status;
-          m.localSyncStatus = 'pending';
-        });
+    const model = await tasksCollection.find(id);
+    await database.write(async () => {
+      await model.update((m) => {
+        if (updates.title !== undefined) m.title = updates.title;
+        if (updates.description !== undefined) m.description = updates.description;
+        if (updates.isCompleted !== undefined) {
+          m.isCompleted = updates.isCompleted;
+          m.status = updates.isCompleted ? 'completed' : 'pending';
+        }
+        if (updates.priority !== undefined) m.priority = updates.priority;
+        if (updates.dueDate !== undefined) m.dueDate = updates.dueDate;
+        if (updates.status !== undefined) m.status = updates.status;
+        m.localSyncStatus = 'pending';
       });
-      return model.toEntity();
-    } catch {
-      const existing = await this.getTaskById(id);
-      return {
-        ...(existing || this.getSeedTasks()[0]),
-        ...updates,
-        updatedAt: new Date()
-      };
-    }
+    });
+    return model.toEntity();
   }
 
   async deleteTask(id: string): Promise<void> {
@@ -106,97 +99,26 @@ export class WatermelonTaskRepository implements ITaskRepository {
       const model = await tasksCollection.find(id);
       await database.write(async () => {
         await model.markAsDeleted();
+        await model.destroyPermanently();
       });
-    } catch {
-      // In-memory fallback
+    } catch (err) {
+      console.warn('[WatermelonTaskRepository] Delete task error:', err);
     }
   }
 
   async getWeeklyMetrics(): Promise<WeeklyTaskMetrics> {
     const tasks = await this.getTasks();
     const completed = tasks.filter((t) => t.isCompleted).length;
-    const total = tasks.length > 0 ? tasks.length : 18;
-    const completedActual = tasks.length > 0 ? completed : 14;
-    const percentage = Math.round((completedActual / total) * 100);
+    const total = tasks.length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
     return {
-      completed: completedActual,
+      completed,
       total,
       percentage,
-      trendVsLastWeek: 12,
-      remainingCount: total - completedActual
+      trendVsLastWeek: 0,
+      remainingCount: total - completed
     };
-  }
-
-  private getSeedTasks(): Task[] {
-    const now = new Date();
-    return [
-      {
-        id: 'task_1',
-        title: 'Nộp bản thảo kiến trúc Clean Architecture Capstone',
-        description: 'Đảm bảo thư mục Domain không chứa bất kỳ thư viện UI nào',
-        status: 'completed',
-        isCompleted: true,
-        priority: 'high',
-        dueDate: now,
-        source: 'manual',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-        updatedAt: new Date(),
-        syncStatus: 'synced'
-      },
-      {
-        id: 'task_2',
-        title: 'Tích hợp mô hình OCR Google ML Kit vào pipeline nhận diện',
-        description: 'Xử lý nhận diện văn bản tiếng Việt tốc độ cao',
-        status: 'pending',
-        isCompleted: false,
-        priority: 'high',
-        dueDate: now,
-        source: 'ocr',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12),
-        updatedAt: new Date(),
-        syncStatus: 'synced'
-      },
-      {
-        id: 'task_3',
-        title: 'Tối ưu danh sách tác vụ với FlashList đạt 60fps',
-        description: 'Kiểm thử render mượt mà không rớt khung hình trên màn hình tần số quét 120Hz',
-        status: 'pending',
-        isCompleted: false,
-        priority: 'medium',
-        dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
-        source: 'ai_extracted',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8),
-        updatedAt: new Date(),
-        syncStatus: 'synced'
-      },
-      {
-        id: 'task_4',
-        title: 'Cấu hình RLS PostgreSQL trên Supabase cho dữ liệu sinh viên',
-        description: 'Phân quyền hàng theo user_id để bảo mật tuyệt đối',
-        status: 'completed',
-        isCompleted: true,
-        priority: 'medium',
-        dueDate: new Date(Date.now() - 1000 * 60 * 60 * 36),
-        source: 'manual',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
-        updatedAt: new Date(),
-        syncStatus: 'synced'
-      },
-      {
-        id: 'task_5',
-        title: 'Chuẩn bị slide thuyết trình demo đồng bộ Offline-First',
-        description: 'Minh họa cơ chế lưu WatermelonDB khi mất mạng và tự động đẩy khi có mạng',
-        status: 'pending',
-        isCompleted: false,
-        priority: 'low',
-        dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 4),
-        source: 'ai_extracted',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
-        updatedAt: new Date(),
-        syncStatus: 'synced'
-      }
-    ];
   }
 }
 
