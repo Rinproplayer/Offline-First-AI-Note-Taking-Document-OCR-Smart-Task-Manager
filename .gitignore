@@ -31,3 +31,7 @@ yarn-error.log*
 Capstone-Report-*
 *.pdf
 *.html
+*.docx
+*.pptx
+*.ppt
+*Báo cáo*
