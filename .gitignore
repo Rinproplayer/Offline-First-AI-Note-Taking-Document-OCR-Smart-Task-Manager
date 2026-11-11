@@ -26,3 +26,8 @@ yarn-debug.log*
 yarn-error.log*
 .DS_Store
 *.orig.*
+
+# Capstone Reports & Generated Docs (Local only, do not track)
+Capstone-Report-*
+*.pdf
+*.html
