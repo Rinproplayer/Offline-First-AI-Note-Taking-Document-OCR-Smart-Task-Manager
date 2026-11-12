@@ -3,7 +3,7 @@
 > **Học phần:** Phát triển Ứng dụng Đa nền tảng (Cross-Platform Mobile App Development) — **Đồ án Cuối kỳ**  
 > **Đơn vị đào tạo:** Trường Đại học Công nghệ Thông tin và Truyền thông Việt – Hàn (VKU), Đại học Đà Nẵng  
 > **Khoa:** Khoa Khoa học Máy tính  
-> **Giảng viên hướng dẫn:** ThS. Đặng Thị Kim Ngân  
+> **Giảng viên hướng dẫn:** TS. Nguyễn Thanh Tuấn  
 > **Nhóm sinh viên thực hiện:** **Nhóm SBTC (Lớp 23IT.B)**
 
 ---
