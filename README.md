@@ -1,10 +1,6 @@
-# 🧠 MindVault — Offline-First AI Note-Taking, Document OCR, Visual Canvas & Smart Favorites Hub
+# 🧠 MindVault — Offline-First AI Note-Taking & Visual Workspace
 
-> **Học phần:** Phát triển Ứng dụng Đa nền tảng (Cross-Platform Mobile App Development) — **Đồ án Cuối kỳ**  
-> **Đơn vị đào tạo:** Trường Đại học Công nghệ Thông tin và Truyền thông Việt – Hàn (VKU), Đại học Đà Nẵng  
-> **Khoa:** Khoa Khoa học Máy tính  
-> **Giảng viên hướng dẫn:** TS. Nguyễn Thanh Tuấn  
-> **Nhóm sinh viên thực hiện:** **Nhóm SBTC (Lớp 23IT.B)**
+> **MindVault** là ứng dụng sổ tay di động đa năng thế hệ mới, tích hợp hài hòa giữa **soạn thảo ghi chú thông minh**, **bảng biểu trực quan công thái học**, **bảng vẽ phác thảo vô cực 60 FPS**, **thị giác máy tính On-Device OCR** và **trợ lý AI Copilot điều khiển hai chiều**. Ứng dụng vận hành theo tôn chỉ **Offline-First**, bảo vệ quyền riêng tư tuyệt đối và mang lại trải nghiệm làm việc mượt mà ngay cả khi không có kết nối mạng.
 
 ---
 
@@ -15,105 +11,158 @@
 [![WatermelonDB](https://img.shields.io/badge/WatermelonDB-SQLite_JSI-FF6B6B?style=for-the-badge)](https://nozbe.github.io/WatermelonDB/)
 [![Google ML Kit](https://img.shields.io/badge/Google_ML_Kit-On--Device_OCR-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://developers.google.com/ml-kit)
 [![Gemini AI](https://img.shields.io/badge/Google_Gemini-Two--Way_Copilot-8E75C4?style=for-the-badge&logo=googlebard&logoColor=white)](https://ai.google.dev)
-[![Status](https://img.shields.io/badge/Milestone-100%25_Completed-success?style=for-the-badge)](#)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
 ---
 
-## 📌 1. Giới thiệu Tổng quan Dự án (Project Overview)
+## 🌟 Tính Năng Nổi Bật (Core Features)
 
-**MindVault** là giải pháp sổ tay số hóa toàn diện trên thiết bị di động, được xây dựng theo tôn chỉ **Offline-First**, tuân thủ nghiêm ngặt **Kiến trúc Sạch 3 tầng (Strict 3-Layer Clean Architecture)**, tích hợp trí tuệ nhân tạo tương tác hai chiều và đạt chuẩn công thái học di động (Google Material 3 & Apple HIG).
-
-Ứng dụng giải quyết triệt để 4 điểm nghẽn nghiêm trọng của các công cụ ghi chú di động hiện nay:
-1. **Lệ thuộc tuyệt đối vào đám mây (Cloud-Centric):** MindVault tự chủ ngoại tuyến 100% nhờ sự kết hợp giữa **WatermelonDB SQLite qua JSI C++** và bộ nhớ đệm native **MMKV**, phản hồi tức thời dưới 16ms không cần kết nối Internet.
-2. **Khó khăn khi thao tác bảng biểu trên smartphone:** Trang bị **Visual Table Widget** với các nút thêm/bớt hàng cột màu hổ phách 1 chạm, tự động cuộn chống che khuất bởi bàn phím ảo (Auto-scroll offset) và đồng bộ 2 chiều với cú pháp Markdown Table.
-3. **Trợ lý AI còn thụ động (Passive Chatbot):** Đột phá với mô hình **Action Agent hai chiều** (Note AI Copilot & Whiteboard AI Copilot), trực tiếp hiểu ngữ cảnh và can thiệp nội dung (tự động tạo bảng dữ liệu, viết văn, xóa đoạn văn theo lệnh, vẽ sơ đồ tư duy Mindmap, tạo lưu đồ Flowchart).
-4. **Phân mảnh giữa chữ viết và hình vẽ phác thảo:** Tích hợp không gian **Bảng vẽ Tương tác Vô cực (Whiteboard Canvas 60 FPS)** với ma trận 28 sắc thái màu, 3 ngòi bút chuyên dụng, 4 mẫu lưới nền, ghi chú dính, bút laser và quản lý tập trung qua **Trung tâm Yêu thích (Favorites Hub)**.
-
----
-
-## 👥 2. Thông tin Nhóm Thực hiện (Team SBTC — 23IT.B)
-
-| STT | Họ và Tên | Mã Sinh Viên | Vai Trò & Trách Nhiệm Chính |
-| :---: | :--- | :---: | :--- |
-| 1 | **Nguyễn Trung Nguyên** | **23IT.B143** | **Trưởng nhóm — Lead Software Architect & DevOps**<br>• Thiết kế tổng thể Strict 3-Layer Clean Architecture & Types.<br>• Xây dựng cấu hình WatermelonDB JSI & Supabase PostgreSQL RLS.<br>• Viết script kiểm định domain tự động và đóng gói phát hành APK Release. |
-| 2 | **Võ Thành Nam** | **23IT.B135** | **Thành viên — AI Engine & Core Business Logic**<br>• Tích hợp Google Gemini LLM SSE Streaming Client.<br>• Xây dựng bộ điều khiển AI 2 chiều (Note & Whiteboard Copilot).<br>• Tích hợp Google ML Kit On-Device OCR tiếng Việt nguồn kép. |
-| 3 | **Võ Tiến Phúc** | **23IT.B168** | **Thành viên — Frontend & State Management**<br>• Triển khai điều hướng Expo Router v4 & FlashList cuộn mượt 60 FPS.<br>• Quản trị trạng thái toàn cục với Zustand kết hợp TanStack Query v5.<br>• Hiện thực hóa Visual Table Widget công thái học chống che bàn phím. |
-| 4 | **Đoàn Kim Oanh** | **23IT.B159** | **Thành viên — UI/UX Design System & Documentation**<br>• Thiết kế Design System & Prototype Figma chuẩn Material 3 & Apple HIG.<br>• Thiết kế ma trận 28 sắc thái màu và menu công cụ bảng vẽ.<br>• Biên soạn Báo cáo Đồ án Cuối kỳ và Slide thuyết trình. |
+### 1. 📝 Soạn Thảo Ghi Chú & Visual Table Widget (Bảng Biểu Thông Minh)
+* **Visual Table Widget Công Thái Học:** Giải quyết triệt để sự bất tiện khi nhập liệu bảng trên màn hình smartphone:
+  * Nút pill nổi bật **`+ Hàng`** và **`+ Cột`** giúp thêm/bớt hàng cột chỉ bằng 1 chạm.
+  * Biểu tượng xóa nhanh từng cột, từng hàng hoặc xóa nguyên bảng dễ dàng.
+  * **Giải pháp chống che khuất bàn phím ảo (Auto-scroll):** Tự động tính toán vị trí và cuộn trang để ô đang nhập liệu luôn hiển thị rõ ràng trên bàn phím.
+  * **Đồng bộ 2 chiều với Markdown:** Tự động chuyển đổi qua lại giữa cú pháp bảng Markdown chuẩn (`| Col 1 | Col 2 |`) và giao diện trực quan.
+* **Định dạng đa dạng:** Hỗ trợ Rich Text (đậm, nghiêng, gạch chân, tiêu đề H1/H2), danh sách kiểm việc (Checklist), đính kèm hình ảnh và bản vẽ.
 
 ---
 
-## 🚀 3. Tiến độ Dự án Hiện tại (Current Project Status)
-
-Dự án đã hoàn thành **100% mục tiêu Đồ án Cuối kỳ** với đầy đủ các phân hệ chức năng:
-
-- [x] **FR-1: Soạn thảo Ghi chú & Markdown:** Hỗ trợ Rich Text, Checklist nhanh, đính kèm đa phương tiện.
-- [x] **FR-2: Widget Bảng biểu Trực quan (Visual Table):** Bổ sung nút pill `+ Hàng` và `+ Cột`, xóa hàng/cột linh hoạt, auto-scroll chống che bàn phím, đồng bộ 2 chiều Markdown.
-- [x] **FR-3: Note AI Copilot Điều khiển Trực tiếp:** Nhận diện lệnh ngôn ngữ tự nhiên hai chiều; tự tạo bảng so sánh, viết văn, tóm tắt và xóa đúng đoạn văn trong ghi chú theo lệnh.
-- [x] **FR-4: Bảng vẽ Tương tác Vô cực (60 FPS):** PanResponder vector không độ trễ, 3 ngòi bút (Calligraphy, Graphite, Highlighter), 4 mẫu lưới nền, quản lý đa bảng vẽ.
-- [x] **FR-5: Ma trận 28 Sắc thái Màu & Công cụ Mở rộng:** Bảng màu kỹ thuật 4x7, 5 cỡ ngòi bút có preview, Sticky note, chèn chữ, ảnh dán, ảnh thư viện, bút laser thuyết trình.
-- [x] **FR-6: Whiteboard AI Copilot Đồ họa:** Dựng hình học (tròn, chữ nhật, tam giác), vẽ sơ đồ tư duy Mindmap 3 nhánh, tạo lưu đồ Flowchart 3 bước, tự đổi màu/công cụ.
-- [x] **FR-7: Quét OCR Tiếng Việt Nguồn Kép On-Device:** Google ML Kit chạy trên chip NPU (< 150ms); hỗ trợ cả Camera trực tiếp và Thư viện ảnh có sẵn; bảo mật 100%.
-- [x] **FR-8: Trung tâm Yêu thích (Favorites Hub):** Tái cấu trúc Bottom Tab thứ hai; gom nhóm tập trung Ghi chú & Bảng vẽ quan trọng; 3 tab lọc tiện ích (Tất cả, Ghi chú, Bảng vẽ).
-- [x] **FR-9: Lưu trữ Ngoại tuyến & Đồng bộ BaaS:** WatermelonDB JSI + MMKV Cache; đồng bộ hai chiều Supabase PostgreSQL (RLS & giải thuật Last-Write-Wins LWW).
-- [x] **Đóng gói Bản phát hành:** Xuất bản thành công file cài đặt độc lập `MindVault.apk` (~167 MB), tương thích 100% từ Android 10 đến Android 15.
+### 2. 🤖 Note AI Copilot — Trợ Lý Điều Khiển Hai Chiều (Action Agent)
+* **Vượt trên mô hình Chatbot thụ động:** Không chỉ dừng lại ở việc phản hồi văn bản trong khung chat, AI Copilot thấu hiểu ngữ cảnh trang ghi chú và trực tiếp thực thi thao tác:
+  * **Tạo bảng dữ liệu theo khẩu lệnh:** Nhận diện lệnh *"Tạo 1 bảng so sánh 3 phương pháp..."* -> Tự động chèn Visual Table chuẩn xác vào ghi chú.
+  * **Soạn thảo và tóm tắt:** Viết đoạn văn, tóm tắt nội dung bài học, dịch thuật trực tiếp theo ý người dùng.
+  * **Xóa dữ liệu theo lệnh:** Hiểu câu lệnh *"Xóa bài văn con mèo trong ghi chú đi"* -> Tự động quét và loại bỏ đúng đoạn nội dung được yêu cầu.
+  * **Phản hồi trạng thái trực quan:** Hộp thoại chat hiển thị thẻ thông báo xanh lá xác nhận các thay đổi vừa thực hiện trên tài liệu.
 
 ---
 
-## 🏛️ 4. Kiến trúc Hệ thống (Strict 3-Layer Clean Architecture)
+### 3. 🎨 Bảng Vẽ Tương Tác Vô Cực (Interactive Whiteboard Canvas 60 FPS)
+* **Động cơ vẽ vector mượt mà:** Xây dựng trên nền tảng `PanResponder` tối ưu hóa UI Thread, phản hồi cảm ứng nhạy bén với độ trễ thao tác cực thấp (< 12ms), đảm bảo tỷ lệ khung hình 60 FPS liên tục.
+* **Bộ 3 ngòi bút chuyên dụng:**
+  * **Bút máy (Calligraphy):** Tạo nét thanh đậm uyển chuyển.
+  * **Bút chì (Graphite):** Phù hợp phác thảo ý tưởng, wireframe.
+  * **Bút dạ quang (Highlighter):** Đánh dấu vùng trọng tâm với độ trong suốt xuyên thấu.
+* **Ma trận 28 sắc thái màu kỹ thuật:** Phân chia khoa học theo 4 hàng $\times$ 7 cột, đáp ứng đầy đủ bảng màu từ nóng, lạnh đến trung tính.
+* **5 mức độ dày nét bút:** Hỗ trợ từ 0.3mm đến 5.0mm kèm dải hiển thị xem trước nét vẽ trực tiếp.
+* **4 mẫu lưới nền linh hoạt:** Lưới chấm mờ (Dot Grid), Lưới ô vuông (Square Grid), Kẻ ngang (Ruled Grid), và Bảng trơn (Blank Canvas).
+* **Bộ công cụ mở rộng (Extended Tools Menu):**
+  * Ghi chú dính (Sticky Notes) màu vàng/hồng.
+  * Hộp chèn văn bản (Text box) di động.
+  * Bộ ảnh dán biểu cảm (Stickers emoji).
+  * Chèn ảnh minh họa từ bộ sưu tập thiết bị.
+  * Bút trình chiếu phát quang (Laser Pointer) phục vụ thuyết trình.
+* **Quản lý đa bảng vẽ:** Cho phép tạo nhiều trang vẽ độc lập, chuyển đổi bảng vẽ nhanh chóng trong 1 chạm.
 
-Dự án áp dụng chặt chẽ **Kiến trúc Sạch 3 tầng** nhằm đảm bảo mã nguồn độc lập, dễ bảo trì, dễ kiểm thử và tuân thủ nguyên lý Đảo ngược Phụ thuộc (**Dependency Inversion Principle - DIP**):
+---
+
+### 4. 🧠 Whiteboard AI Copilot — Điều Khiển Đồ Họa Bằng Giọng Nói / Văn Bản
+* **Vẽ hình học cơ bản:** Tự động nhận diện lệnh *"Vẽ 1 hình tròn"*, *"Vẽ hình chữ nhật"*, *"Vẽ tam giác"* và dựng shape vector chuẩn ngay giữa màn hình.
+* **Dựng Sơ đồ tư duy (Mindmap) tức thì:** Lệnh *"Vẽ mindmap 3 nhánh về quy trình..."* -> Tự động sinh node trung tâm và tỏa ra 3 nhánh con màu sắc phân biệt.
+* **Dựng Lưu đồ thuật toán (Flowchart):** Lệnh *"Tạo flowchart 3 bước đăng nhập"* -> Tự động tạo chuỗi khối hình học nối tiếp nhau bằng mũi tên vector.
+* **Điều khiển công cụ rảnh tay:** Hỗ trợ các lệnh *"Đổi bút sang màu đỏ"*, *"Chuyển sang cục tẩy"*, *"Dán note vàng"*.
+
+---
+
+### 5. 📷 Thị Giác Máy Tính On-Device OCR Tiếng Việt Nguồn Kép
+* **Bảo mật On-Device tuyệt đối:** Sử dụng động cơ **Google ML Kit Text Recognition** chạy 100% trên chip NPU/GPU của thiết bị di động, không gửi bất kỳ byte hình ảnh nào ra máy chủ bên ngoài.
+* **Hỗ trợ 2 nguồn ảnh linh hoạt:**
+  * Chụp ảnh tài liệu, bảng viết trực tiếp từ Camera.
+  * Chọn ảnh chụp slide, giáo trình đã lưu sẵn trong Thư viện ảnh (`expo-image-picker`).
+* **Tốc độ siêu nhanh:** Nhận diện chuẩn xác toàn bộ bảng mã Unicode tiếng Việt trong khoảng **~138 ms** (nhanh hơn 3.2 lần so với OCR đám mây).
+* **Tự động liên kết tài liệu:** Nội dung bóc tách được chèn tức thì vào vị trí con trỏ; đính kèm thẻ ảnh gốc để đối chiếu khi cần.
+
+---
+
+### 6. ❤️ Trung Tâm Quản Lý Yêu Thích (Favorites Hub)
+* **Gom nhóm tập trung:** Nơi quản lý chung cả các **Ghi chú văn bản** quan trọng và các **Bảng vẽ phác thảo** cần truy cập thường xuyên.
+* **Đánh dấu 1 chạm:** Nhấn vào biểu tượng Trái tim để đưa tài nguyên vào mục Yêu thích tức thời.
+* **Bộ lọc tiện ích:** 3 tab phân loại rõ ràng:
+  * **Tất cả:** Toàn bộ nội dung yêu thích.
+  * **Ghi chú:** Danh sách tài liệu, bảng biểu văn bản.
+  * **Bảng vẽ:** Danh sách sơ đồ tư duy, phác thảo vector.
+* **Bộ nhớ đệm MMKV siêu tốc:** Nạp danh sách yêu thích ngay lập tức, không có độ trễ chuyển trang.
+
+---
+
+### 7. ⚡ Offline-First & Đồng Bộ Đám Mây An Toàn
+* **Kiến trúc ngoại tuyến vững chắc:** Mọi thao tác tạo mới, chỉnh sửa bảng, vẽ canvas, quét OCR đều hoạt động bình thường kể cả khi thiết bị ngắt mạng hoàn toàn.
+* **Hạ tầng CSDL cục bộ:** **WatermelonDB** kết hợp SQLite qua cơ chế JSI (JavaScript Interface) C++ trực tiếp, cho thời gian truy vấn đọc/ghi dưới 16ms.
+* **Đồng bộ hóa đám mây (Supabase BaaS):** Tự động đồng bộ hai chiều khi có kết nối mạng:
+  * **Bảo mật cấp hàng (Row-Level Security - RLS):** Phân lập dữ liệu tuyệt đối giữa các người dùng.
+  * **Giải thuật Last-Write-Wins (LWW):** Tự động dung hòa xung đột dữ liệu dựa trên nhãn thời gian UTC `updated_at`.
+
+---
+
+## 🏛️ Kiến Trúc Phần Mềm (Clean Architecture)
+
+MindVault tuân thủ nghiêm ngặt **Kiến trúc Sạch 3 tầng (Strict 3-Layer Clean Architecture)** nhằm tách biệt hoàn toàn giữa quy tắc nghiệp vụ cốt lõi, hạ tầng dữ liệu và giao diện người dùng:
 
 ```
 src/
-├── domain/                      # [TẦNG 1: PURE TYPESCRIPT - KHÔNG PHỤ THUỘC NGOÀI]
-│   ├── entities/                # Note.ts, Task.ts, Whiteboard.ts
-│   ├── repositories/            # INoteRepository.ts, ITaskRepository.ts, IWhiteboardRepository.ts, IAIService.ts
-│   └── usecases/                # NoteUseCases.ts, WhiteboardUseCases.ts, AIUseCases.ts
+├── domain/                      # [TẦNG DOMAIN: 100% PURE TYPESCRIPT]
+│   ├── entities/                # Thực thể nghiệp vụ: Note.ts, Task.ts, Whiteboard.ts
+│   ├── repositories/            # Interfaces trừu tượng: INoteRepository, IWhiteboardRepository, IAIService
+│   └── usecases/                # Use Cases: CreateNote, UpdateTable, ExecuteAICommand
+│   └── (TUYỆT ĐỐI KHÔNG import React, React Native, UI SDK hay thư viện ngoài)
 │
-├── data/                        # [TẦNG 2: DATA & INFRASTRUCTURE]
-│   ├── watermelon/              # WatermelonDB Database, Schemas, TaskModel.ts, NoteModel.ts
-│   ├── repositories/            # WatermelonTaskRepository.ts, MMKVWhiteboardRepository.ts, AIServiceImpl.ts
+├── data/                        # [TẦNG DATA: HẠ TẦNG & DỊCH VỤ BÊN NGOÀI]
+│   ├── watermelon/              # Schemas, Database & Models (WatermelonDB SQLite JSI)
+│   ├── repositories/            # Triển khai cụ thể: WatermelonNoteRepository, MMKVWhiteboardRepository
 │   ├── ocr/                     # mlKitOCRService.ts (Google ML Kit On-Device Engine)
 │   └── ai/                      # streamingLLMClient.ts (Google Gemini SSE Client)
 │
-└── presentation/                # [TẦNG 3: UI & STATE MANAGEMENT]
-    ├── screens/                 # HomeScreen.tsx, NoteEditorScreen.tsx, WhiteboardScreen.tsx, FavoritesScreen.tsx
-    ├── components/              # AICopilotChatSheet.tsx, WhiteboardAICopilotChatSheet.tsx, NoteCard.tsx...
-    ├── stores/                  # Zustand: useFavoritesStore.ts, useFilterStore.ts
-    ├── hooks/                   # TanStack Query: useTasksQuery.ts, useWhiteboardQuery.ts, useOCRMutation.ts
-    └── theme/                   # colors.ts (Material 3 & Apple HIG tokens, Dark/Light Mode)
+└── presentation/                # [TẦNG PRESENTATION: GIAO DIỆN & STATE MANAGEMENT]
+    ├── screens/                 # HomeScreen, NoteEditorScreen, WhiteboardScreen, FavoritesScreen
+    ├── components/              # Visual Table Widget, AICopilotChatSheet, WhiteboardAICopilotChatSheet
+    ├── stores/                  # Quản lý state toàn cục qua Zustand (useFavoritesStore, useFilterStore)
+    ├── hooks/                   # Xử lý server-state bất đồng bộ qua TanStack Query v5
+    └── theme/                   # Material 3 & Apple HIG Design System Tokens (Dark/Light Mode)
 ```
 
-> 🛡️ **Kiểm định Tự động (Architecture Verification):**  
-> Dự án tích hợp script độc lập `npm run verify:domain` (`scripts/verify_domain.js`). Khi chạy, công cụ tự động quét 100% file trong `src/domain` để bảo đảm **0 vi phạm import React / React Native / SDK bên ngoài** (Đạt kết quả **13/13 PASS**).
+> 🛡️ **Kiểm định kiến trúc tự động:** Dự án tích hợp script kiểm thử độc lập `npm run verify:domain` nhằm đảm bảo tầng `src/domain` luôn giữ độ thuần khiết tuyệt đối (Đạt **13/13 PASS, 0 vi phạm**).
 
 ---
 
-## 📊 5. Kết quả Đo lường & Benchmark Thực nghiệm
+## 📊 Kết Quả Đo Lường & Hiệu Năng Thực Nghiệm
 
-Toàn bộ các chỉ số được đo lường thực tế trên thiết bị di động Android:
-
-| Chỉ số Hiệu năng (Metric) | Kết quả Đo lường Thực tế | Tiêu chuẩn Đặt ra | Trạng thái |
+| Hạng mục Đo lường | Kết quả Thực nghiệm | Tiêu chuẩn Đặt ra | Trạng thái |
 | :--- | :---: | :---: | :---: |
-| **Tỷ lệ Khung hình (FPS)** | **58.8 – 60.0 FPS** | $\ge$ 55 FPS | ✅ **Đạt xuất sắc** |
-| **Thời gian Phản hồi CSDL Cục bộ** | **< 16 ms** | < 32 ms | ✅ **Đạt xuất sắc** |
+| **Tỷ lệ khung hình cuộn & vẽ (FPS)** | **58.8 – 60.0 FPS** | $\ge$ 55 FPS | ✅ **Đạt xuất sắc** |
+| **Thời gian phản hồi CSDL Cục bộ** | **< 16 ms** | < 32 ms | ✅ **Đạt xuất sắc** |
 | **Tốc độ Nhận diện ML Kit OCR Tiếng Việt** | **~138 ms** | < 200 ms | ✅ **Đạt xuất sắc** |
 | **Thời gian Khởi động Nguội (Cold Start)** | **< 500 ms** | < 1000 ms | ✅ **Đạt xuất sắc** |
-| **Tiêu thụ Bộ nhớ RAM** | **85 – 110 MB** | < 180 MB | ✅ **Đạt xuất sắc** |
+| **Mức tiêu thụ bộ nhớ RAM** | **85 – 110 MB** | < 180 MB | ✅ **Đạt xuất sắc** |
 | **Kiểm thử Kịch bản Note AI Copilot** | **10 / 10 PASS (100%)** | 100% | ✅ **Đạt tuyệt đối** |
 | **Kiểm thử Kịch bản Whiteboard AI Copilot** | **10 / 10 PASS (100%)** | 100% | ✅ **Đạt tuyệt đối** |
 | **Kiểm định Kiến trúc Domain (`verify:domain`)** | **13 / 13 File (0 vi phạm)** | 0 vi phạm | ✅ **Đạt tuyệt đối** |
 
 ---
 
-## 🛠️ 6. Hướng dẫn Cài đặt & Chạy Ứng dụng (Getting Started)
+## 💻 Công Nghệ Sử Dụng (Tech Stack)
 
-### Yêu cầu Tiên quyết (Prerequisites)
-* **Node.js:** $\ge$ 20.x
+| Phân hệ | Công nghệ / Thư viện | Vai trò kỹ thuật |
+| :--- | :--- | :--- |
+| **Core Framework** | React Native (v0.76) + TypeScript | Nền tảng phát triển ứng dụng di động hiệu năng cao |
+| **Navigation** | Expo Router v4 | Điều hướng dạng cấu trúc thư mục (File-system based routing) |
+| **Local Database** | WatermelonDB (SQLite qua JSI) | CSDL phản ứng (Reactive) tốc độ cao cho mô hình Offline-First |
+| **Local Cache** | Tencent MMKV (C++ Native) | Bộ nhớ đệm lưu trữ key-value trạng thái và tùy biến giao diện |
+| **Cloud BaaS** | Supabase PostgreSQL + RLS | Đồng bộ đám mây an toàn với chính sách bảo mật cấp hàng |
+| **Computer Vision** | Google ML Kit Text Recognition | Nhận dạng văn bản OCR tiếng Việt on-device không cần mạng |
+| **Generative AI** | Google Gemini Flash LLM | Mô hình ngôn ngữ lớn phân tích ngữ cảnh và điều khiển hai chiều |
+| **State Management** | Zustand + TanStack Query v5 | Quản lý trạng thái UI nhẹ nhàng kết hợp bộ đệm dữ liệu bất đồng bộ |
+| **UI Components** | Google Material 3 + Apple HIG | Chuẩn thiết kế công thái học di động, hỗ trợ Dark / Light Mode |
+| **Animation & List** | Reanimated 3 + Shopify FlashList | Tái chế view DOM hiệu quả, duy trì tỷ lệ khung hình 60 FPS |
+
+---
+
+## 🛠️ Hướng Dẫn Cài Đặt & Chạy Ứng Dụng (Getting Started)
+
+### Yêu cầu Tiên quyết
+* **Node.js:** Phiên bản $\ge$ 20.x
 * **Trình quản lý gói:** `npm` hoặc `yarn`
-* **Môi trường phát triển di động:** Expo Go app hoặc Android Studio (cho máy ảo / thiết bị thật Android 10 - 15)
+* **Thiết bị:** Máy ảo Android (Android Studio API 29+) hoặc thiết bị thật chạy Android 10 – Android 15
 
-### Các bước Cài đặt
+### Các bước Thực hiện
 
 1. **Clone mã nguồn từ GitHub:**
    ```bash
@@ -121,21 +170,21 @@ Toàn bộ các chỉ số được đo lường thực tế trên thiết bị 
    cd Offline-First-AI-Note-Taking-Document-OCR-Smart-Task-Manager
    ```
 
-2. **Cài đặt các gói phụ thuộc (Dependencies):**
+2. **Cài đặt các gói phụ thuộc:**
    ```bash
    npm install
    ```
 
-3. **Chạy kiểm tra tính toàn vẹn Kiến trúc Sạch (Clean Architecture Verification):**
+3. **Kiểm tra tính toàn vẹn Kiến trúc Sạch (Clean Architecture Verification):**
    ```bash
    npm run verify:domain
    ```
 
-4. **Khởi động ứng dụng qua Expo Router:**
+4. **Khởi động ứng dụng phát triển:**
    ```bash
    npm start
    ```
-   *Nhấn phím `a` trên terminal để mở trên thiết bị Android hoặc quét mã QR qua ứng dụng Expo Go.*
+   *Nhấn phím `a` để mở ứng dụng trên thiết bị Android hoặc máy ảo.*
 
 5. **Đóng gói file cài đặt APK độc lập (Standalone Release Build):**
    ```bash
@@ -144,9 +193,6 @@ Toàn bộ các chỉ số được đo lường thực tế trên thiết bị 
 
 ---
 
-## 📄 7. Bản quyền & Học thuật (License & Academic Integrity)
+## 📄 Giấy Phép (License)
 
-Dự án này là sản phẩm nghiên cứu và phát triển độc lập của **Nhóm SBTC (Lớp 23IT.B)** trong khuôn khổ **Học phần Phát triển Ứng dụng Đa nền tảng** tại **Trường Đại học Công nghệ Thông tin và Truyền thông Việt – Hàn (VKU)**.
-
-* **Bản quyền mã nguồn:** Phát hành theo giấy phép [MIT License](LICENSE).
-* **Cam kết học thuật:** Toàn bộ số liệu thực nghiệm, thiết kế kiến trúc và mã nguồn phản ánh trung thực kết quả làm việc của nhóm, không sao chép từ bất kỳ đồ án chưa công bố nào khác.
+Dự án được phát hành theo giấy phép **[MIT License](LICENSE)**.
